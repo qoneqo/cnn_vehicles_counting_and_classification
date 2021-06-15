@@ -1,6 +1,8 @@
 import numpy as np
 import math
 from tqdm import tqdm
+import random
+
 c_layer = chr(ord('A')-1)
 
 class ConvLayer:    
@@ -117,15 +119,16 @@ class ConvLayer:
         inp_len = math.floor(da.shape[0] / kernel.shape[0])
         inp = np.zeros((inp_len, nH, nW), dtype=float)
 
-        for x in tqdm(range(inp_len), desc='Backward Progress'):
-            kernelx = np.rot90(kernel[0], 2)
+        for x in range(inp_len):
+            lnf_rand = random.randint(0, kernel.shape[0]-1)
+            kernelx = np.rot90(kernel[lnf_rand], 2)
             kernelx = np.pad(kernelx, ((da.shape[1]-1, da.shape[1]-1),(da.shape[2]-1, da.shape[2]-1)), 'constant')
-            for k in tqdm(range(nH), desc='Sub Backward Progress 1', leave=False):
-                for l in tqdm(range(nW), desc='Sub Backward Progress 2', leave=False):
+            for k in range(nH):
+                for l in range(nW):
                     convo = 0
-                    for i in tqdm(range(da.shape[1]), desc='Sub Backward Progress 3', leave=False):
-                        for j in tqdm(range(da.shape[2]), desc='Sub Backward Progress 4', leave=False):
-                            convo +=  da[x*kernel.shape[0]][i][j] * kernelx[k*self.stride+i][l*self.stride+j]
+                    for i in range(da.shape[1]):
+                        for j in range(da.shape[2]):
+                            convo +=  da[x * kernel.shape[0] + lnf_rand][i][j] * kernelx[k*self.stride+i][l*self.stride+j]
                     inp[x][(nH-1)-k][(nW-1)-l] = convo
         return inp
 

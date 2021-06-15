@@ -3,13 +3,82 @@ from max_pool_layer import *
 from dense_layer import *
 from adam_optim import *
 from cv2 import cv2
+import pickle
 from tqdm import tqdm
+from random import shuffle
+import os
+
+train_data = 'dataset/train'
+test_data = 'dataset/test'
+
+def desc_predict(num):
+    label = ''
+    if num == 0:
+        label = 'sepeda motor'    
+    elif num == 1:
+        label = 'sepeda' 
+    elif num == 2:
+        label = 'mobil penumpang'
+    elif num == 3:
+        label = 'mobil barang'
+    return label
+
+def one_hot_label(img):
+    label = img.split('.')[0]
+    ohl = np.array([0, 0, 0, 0])
+    if label == 'sepeda-motor':
+        ohl = np.array([1, 0, 0, 0])
+    elif label == 'sepeda':
+        ohl = np.array([0, 1, 0, 0])
+    elif label == 'mobil-penumpang':
+        ohl = np.array([0, 0, 1, 0])
+    elif label == 'mobil-barang':
+        ohl = np.array([0, 0, 0, 1])
+    ohl = np.reshape(ohl, (ohl.shape[0], 1))
+    return ohl
+    
+def train_data_with_label():
+    train_images = []
+    for i in os.listdir(train_data):
+        path = os.path.join(train_data, i)
+        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE) / 255
+        img = cv2.resize(img, (64, 64))
+        train_images.append([np.array([img]), one_hot_label(i)])
+    shuffle(train_images)
+    return train_images
+
+def test_data_with_label():    
+    test_images = []
+    for i in os.listdir(test_data):
+        path = os.path.join(test_data, i)
+        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE) / 255
+        img = cv2.resize(img, (64, 64))
+        test_images.append([np.array([img]), one_hot_label(i)])
+    shuffle(test_images)
+    return test_images
+    
+training_images = train_data_with_label()
+testing_images = test_data_with_label()
+
+tr_img_data = np.array([i[0] for i in training_images])
+tr_lbl_data = np.array([i[1] for i in training_images])
+tst_img_data = np.array([i[0] for i in testing_images])
+tst_lbl_data = np.array([i[1] for i in testing_images])
+
 
 class CNN:
-    def __init__(self, architecture, inp):
+    def __init__(self, architecture, inp, model = False):
         self.architecture = architecture
         self.inp = inp
-        self.obj = self.init_obj_layer()
+        self.i_adam = 0
+        self.d = []
+        self.true_values = []
+        self.predictions = []
+        
+        if model == False:
+            self.obj = self.init_obj_layer()
+        else:
+            self.obj = model
         
     def init_obj_layer(self):
         obj_layer = []
@@ -30,8 +99,38 @@ class CNN:
             obj_layer.append(obj)
         return obj_layer
         
+    def update(self):
+        params = []
+        params_d = []
+        obj_selected = []
+        for obj in self.obj:
+            if obj.__class__.__name__ == 'DenseLayer':
+                params.append(obj.weight)
+                params.append(obj.bias)
+                dw, db = obj.grad_function(obj.d1z)
+                params_d.append(dw)
+                params_d.append(db)
 
+                obj_select = {'param': obj, 'param_name': 'weight'}
+                obj_selected.append(obj_select)
+                obj_select = {'param': obj, 'param_name': 'bias'}
+                obj_selected.append(obj_select)
+
+            elif obj.__class__.__name__ == 'ConvLayer':
+                params.append(obj.kernel)
+                dk = obj.grad_function(obj.d1z)
+                params_d.append(dk)
+                obj_select = {'param': obj, 'param_name': 'kernel'}
+                obj_selected.append(obj_select)
+        self.i_adam += 1
+        adam = AdamOptim(params_len=len(params))
+        params = adam.update(self.i_adam, params.copy(), params_d.copy())
+        
+        for ob, par in zip(obj_selected, params):
+            setattr(ob['param'], ob['param_name'], par)
+            
     def cross_entropy(self, actual, predicted):
+        predicted[predicted == 0] = 1e-8
         output = -actual * np.log(predicted)
         # loss = -np.sum(actual * np.log(predicted))
         loss = np.sum(output)
@@ -41,154 +140,117 @@ class CNN:
         dy = softmax_output - hot_vector
         return dy 
 
-    def train(self, out, epochs = 15):
-        for ep in tqdm(range(epochs), desc='Epochs'):
-            inp = self.inp
-            self.dz = []
-            
-            print('Forward Prop...')
-            for i, obj in tqdm(enumerate(self.obj), desc='Forward Progress'):
-                if obj == 'flatten':
-                    inp = np.reshape(inp, (math.prod(inp.shape), 1))
-                else:
-                    obj.set_inp(inp)
-                    inp = obj.forward()
-            
-            loss, ce_z = cnn.cross_entropy(out, inp)
-            dz = cnn.backward_cross_entropy(inp, out)
-            print('==========================================================')
-            print('loss: ',loss)
-            print('==========================================================')
 
-            print('Backward Prop...')
-            for i, obj in reversed(list(enumerate(self.obj))):
-                if obj == 'flatten':
-                    dz = np.reshape(dz, self.obj[i-1].output.shape)
-                else:
-                    obj.d1z = dz
-                    dz = obj.backward(dz)
+    def train(self, out, epochs = 1):
 
-            print('Update Params...')
-            w1 = self.obj[4].weight
-            b1 = self.obj[4].bias
-            w2 = self.obj[3].weight
-            b2 = self.obj[3].bias
-            k1 = self.obj[0].kernel
-            adam = AdamOptim()
-            t = 1 
+        self.true_values = []
+        self.predictions = []
 
-            dw1, db1 = self.obj[4].grad_function(self.obj[4].d1z)
-            dw2, db2 = self.obj[3].grad_function(self.obj[3].d1z)
-            dk1 = self.obj[0].grad_function(self.obj[0].d1z)
-
-            self.obj[4].weight, self.obj[4].bias, self.obj[3].weight, self.obj[3].bias, self.obj[0].kernel = adam.update(t, w1, b1, dw1, db1, w2, b2, dw2, db2, k1, dk1)
-
-
+        for ep in tqdm(range(epochs), desc='Epochs', leave=False):
+            for it in tqdm(range(out.shape[0]), desc='Iteration', leave='False'):
+                inp = np.array(self.inp[it],copy=True)
                 
-                        
+                # print('Forward Prop...')
+                for i, obj in enumerate(self.obj):
+                    if obj == 'flatten':
+                        inp = np.reshape(inp, (math.prod(inp.shape), 1))
+                        self.d = np.random.rand(inp.shape[0], inp.shape[1])
+                    else:
+                        obj.set_inp(inp)
+                        inp = obj.forward()
                 
+                
+                loss, ce_z = cnn.cross_entropy(out[it], inp)
+                dz = cnn.backward_cross_entropy(inp, out[it])
+                
+                ### count accuracy
+                self.true_values.append(np.argmax(out[it].flatten()))
+                self.predictions.append(np.argmax(inp.flatten()))
 
-x = np.array(
-    [
-        [[2, 5, 3],
-        [2, 1, 2],
-        [4, 2, 3]],
+                true_values = np.array(self.true_values, copy=True)
+                predictions = np.array(self.predictions, copy=True)
 
-        [[1, 3, 3],
-        [2, 1, 2],
-        [2, 2, 3]],
+                N = len(true_values)
+                accuracy = (true_values == predictions).sum() / N
 
-        [[1, 3, 3],
-        [2, 1, 2],
-        [2, 2, 3]],
-    ]
-) 
+                print('\n\n')
+                print('=====================================================')
+                print('loss: ', loss, ' accuracy: ', accuracy)
+                print('actual: ', np.argmax(out[it].flatten()), ' predicted: ', np.argmax(inp.flatten()))
+                if ep == epochs-1 and it == out.shape[0]-1:
+                    break
 
-y = np.array([
-    [0],
-    [0],
-    [0],
-    [1],
-    [0],
-])
+                # print('Backward Prop...')
+                for i, obj in reversed(list(enumerate(self.obj))):
+                    if obj == 'flatten':
+                        dz = np.reshape(dz, self.obj[i-1].output.shape)
+                    else:
+                        obj.d1z = dz
+                        if i == 0:
+                            break
+                        dz = obj.backward(dz)
+
+                # print('Update Params...')
+                self.update()
+        # Saving the objects:
+        f = open('model-4.pckl', 'wb')
+        pickle.dump(self.obj, f)
+        f.close()
+
+
 
 architecture = [
-    {'layer_type': 'conv',      'kernel_len': 2,        'kernel_dim': (2,2), 'stride': 1, 'activation': 'relu'},
-    {'layer_type': 'max_pool',  'pool_dim': (2,2),    'stride': 2},
+    {'layer_type': 'conv',      'kernel_len': 8,        'kernel_dim': (3,3), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    {'layer_type': 'conv',      'kernel_len': 8,        'kernel_dim': (3,3), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    {'layer_type': 'conv',      'kernel_len': 8,        'kernel_dim': (5,5), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    
     {'layer_type': 'flatten'},
-    {'layer_type': 'dense',     'input_size': 18,  'output_size': 10,  'activation': 'relu'},
-    {'layer_type': 'dense',     'input_size': 10,   'output_size': 5,   'activation': 'softmax'},
+    
+    {'layer_type': 'dense',     'input_size': 512,  'output_size': 64,  'activation': 'relu'},
+    {'layer_type': 'dense',     'input_size': 64,   'output_size': 4,   'activation': 'softmax'},
 ]
 
-x = cv2.imread('mobil-penumpang.6.png', cv2.IMREAD_GRAYSCALE) / 255
-x = cv2.resize(x, (5, 5))
-x = np.array([x])
-cnn = CNN(architecture, x)
-cnn.train(y)
-
-
-
-# ### conv operation example
-# c1 = ConvLayer(x, kernel_dim=(2,2), kernel_len=2, padding=1)
-# c1_z = c1.forward()
-# ### max pool operation example
-# p1 = MaxPoolLayer(c1_z, pool_dim = (2,2), padding = 0, stride = 2)
-# p1_z = p1.forward()
-# ### reshape operation example
-# z = np.reshape(p1_z, (math.prod(p1_z.shape), 1))
-# ### dense operation example
-# f1 = DenseLayer(z, inp_size = z.shape[0], output_size = 55)
-# f1_z = f1.forward()
-# f2 = DenseLayer(f1_z, inp_size = 55, output_size = 5, activation='softmax')
-# f2_z = f2.forward()
-
-# cnn = CNN()
-# actual = np.array([
-#     [0],
-#     [0],
-#     [0],
-#     [0],
-#     [1],
+# x = cv2.imread('mobil-penumpang.6.png', cv2.IMREAD_GRAYSCALE) / 255
+# x = cv2.resize(x, (64, 64))
+# x = np.array([x])
+# y = np.array([
+#     [
+#         [0],
+#         [0],
+#         [1],
+#         [0],
+#     ]
 # ])
-# loss, ce_z = cnn.cross_entropy(actual, f2_z)
 
-# ce_dz = cnn.backward_cross_entropy(f2_z, actual)
-# f2_dz = f2.backward(ce_dz)
-# f1_dz = f1.backward(f2_dz)
-
-# z = np.reshape(f1_dz, p1_z.shape)
-# p1_dz = p1.backward(z)
-
-# c1_dz = c1.backward(p1_dz)
-# print(c1_dz)
+# cnn = CNN(architecture, np.array([x]))
+# predicted = cnn.train(np.array(y), epochs=100)
 
 
-# epochs = 20
-# learning_rate = 0.1
+# f = open('model-4.pckl', 'rb')
+# obj = pickle.load(f)
+# f.close()
 
-# # train
-# for e in range(epochs):
-#     error = 0
-#     for x, y in zip(x_train, y_train):
-#         # forward
-#         output = x
-#         for layer in network:
-#             output = layer.forward(output)
+# x = w,x,y,z
+# y = x,y,z
+cnn = CNN(architecture, np.array(tr_img_data))
+predicted = cnn.train(np.array(tr_lbl_data), epochs=1)
 
-#         # error
-#         error += binary_cross_entropy(y, output)
 
-#         # backward
-#         grad = binary_cross_entropy_prime(y, output)
-#         for layer in reversed(network):
-#             grad = layer.backward(grad, learning_rate)
 
-#     error /= len(x_train)
-#     print(f"{e + 1}/{epochs}, error={error}")
+# predicted = np.argmax(predicted.flatten())
 
-# # test
-# for x, y in zip(x_test, y_test):
-#     output = x
-#     for layer in network:
-#         output = layer.forward(output)
-#     print(f"pred: {np.argmax(output)}, true: {np.argmax(y)}")
+# actual = np.argmax(tr_lbl_data[0].flatten())
+
+# print('\n\nactual label: ', desc_predict(actual))
+# print('predicted label: ', desc_predict(predicted))
+
+# mobil barang: 28
+# mobil penumpang: 147
+# sepeda motor: 139
+# sepeda : 139

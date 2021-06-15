@@ -8,7 +8,7 @@ class DenseLayer:
         self.inp_size = inp_size
         self.output_size = output_size
         self.activation = activation
-        self.weight = np.random.rand(output_size, inp_size)
+        self.weight = np.random.rand(output_size, inp_size) 
         self.bias = np.random.rand(output_size, 1)
         self.output = []
         self.output_w_activation = []

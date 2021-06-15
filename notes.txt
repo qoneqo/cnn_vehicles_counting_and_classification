@@ -1,0 +1,32 @@
+#model-2.pckl 
+architecture = [
+    {'layer_type': 'conv',      'kernel_len': 10,        'kernel_dim': (2,2), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (2,2),    'stride': 2},
+    
+    {'layer_type': 'conv',      'kernel_len': 5,        'kernel_dim': (3,3), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    {'layer_type': 'conv',      'kernel_len': 3,        'kernel_dim': (3,3), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    {'layer_type': 'flatten'},
+    
+    {'layer_type': 'dense',     'input_size': 1350,  'output_size': 4,  'activation': 'softmax'},
+]
+
+#model-3.pckl 
+architecture = [
+    {'layer_type': 'conv',      'kernel_len': 4,        'kernel_dim': (4,4), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    {'layer_type': 'conv',      'kernel_len': 4,        'kernel_dim': (3,3), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    {'layer_type': 'conv',      'kernel_len': 4,        'kernel_dim': (2,2), 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    
+    {'layer_type': 'flatten'},
+    
+    {'layer_type': 'dense',     'input_size': 256,  'output_size': 64,  'activation': 'relu'},
+    {'layer_type': 'dense',     'input_size': 64,   'output_size': 4,   'activation': 'softmax'},
+]
