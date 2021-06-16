@@ -85,10 +85,10 @@ class CNN:
         for i, arch in enumerate(self.architecture):
             layer_type = arch['layer_type']
             if layer_type == 'conv':
-                obj = ConvLayer(kernel_len=arch['kernel_len'], kernel_dim=arch['kernel_dim'], stride=arch['stride'], activation=arch['activation'])
+                obj = ConvLayer(filter_len=arch['filter_len'], kernel_size=arch['kernel_size'], stride=arch['stride'], activation=arch['activation'])
 
             elif layer_type == 'max_pool':
-                obj = MaxPoolLayer(pool_dim=arch['pool_dim'], stride=arch['stride'])
+                obj = MaxPoolLayer(pool_size=arch['pool_size'], stride=arch['stride'])
 
             elif layer_type == 'flatten':
                 obj = 'flatten'
@@ -117,10 +117,10 @@ class CNN:
                 obj_selected.append(obj_select)
 
             elif obj.__class__.__name__ == 'ConvLayer':
-                params.append(obj.kernel)
+                params.append(obj.filters)
                 dk = obj.grad_function(obj.d1z)
                 params_d.append(dk)
-                obj_select = {'param': obj, 'param_name': 'kernel'}
+                obj_select = {'param': obj, 'param_name': 'filters'}
                 obj_selected.append(obj_select)
         self.i_adam += 1
         adam = AdamOptim(params_len=len(params))
@@ -193,27 +193,26 @@ class CNN:
                 # print('Update Params...')
                 self.update()
         # Saving the objects:
-        f = open('model-4.pckl', 'wb')
+        f = open('model-5.pckl', 'wb')
         pickle.dump(self.obj, f)
         f.close()
 
 
 
 architecture = [
-    {'layer_type': 'conv',      'kernel_len': 8,        'kernel_dim': (3,3), 'stride': 1, 'activation': 'relu'},
-    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 3,    'stride': 3},
     
-    {'layer_type': 'conv',      'kernel_len': 8,        'kernel_dim': (3,3), 'stride': 1, 'activation': 'relu'},
-    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
+    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 3,    'stride': 3},
     
-    {'layer_type': 'conv',      'kernel_len': 8,        'kernel_dim': (5,5), 'stride': 1, 'activation': 'relu'},
-    {'layer_type': 'max_pool',  'pool_dim': (3,3),    'stride': 3},
-    
+    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 3,    'stride': 3},
     
     {'layer_type': 'flatten'},
     
-    {'layer_type': 'dense',     'input_size': 512,  'output_size': 64,  'activation': 'relu'},
-    {'layer_type': 'dense',     'input_size': 64,   'output_size': 4,   'activation': 'softmax'},
+    {'layer_type': 'dense',     'input_size': 32,  'output_size': 12,  'activation': 'relu'},
+    {'layer_type': 'dense',     'input_size': 12,   'output_size': 4,   'activation': 'softmax'},
 ]
 
 # x = cv2.imread('mobil-penumpang.6.png', cv2.IMREAD_GRAYSCALE) / 255
@@ -232,25 +231,18 @@ architecture = [
 # predicted = cnn.train(np.array(y), epochs=100)
 
 
-# f = open('model-4.pckl', 'rb')
-# obj = pickle.load(f)
-# f.close()
+f = open('model-4.pckl', 'rb')
+obj = pickle.load(f)
+f.close()
 
 # x = w,x,y,z
 # y = x,y,z
 cnn = CNN(architecture, np.array(tr_img_data))
-predicted = cnn.train(np.array(tr_lbl_data), epochs=1)
+predicted = cnn.train(np.array(tr_lbl_data), epochs=15)
 
-
-
-# predicted = np.argmax(predicted.flatten())
-
-# actual = np.argmax(tr_lbl_data[0].flatten())
-
-# print('\n\nactual label: ', desc_predict(actual))
-# print('predicted label: ', desc_predict(predicted))
 
 # mobil barang: 28
 # mobil penumpang: 147
 # sepeda motor: 139
 # sepeda : 139
+

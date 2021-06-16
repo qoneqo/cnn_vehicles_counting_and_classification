@@ -6,14 +6,17 @@ import random
 c_layer = chr(ord('A')-1)
 
 class ConvLayer:    
-    def __init__(self, kernel_len, kernel_dim, stride = 1, padding  = 1, activation = 'relu'):
-        self.kernel_len = kernel_len
-        self.kernel_dim = kernel_dim
+    def __init__(self, filter_len, kernel_size, stride = 1, padding  = 1, activation = 'relu'):
+        self.filter_len = filter_len
+        self.kernel_size = (kernel_size, kernel_size)
+        ####
+        ## filters = [v][x][y][z]
+        ## v = filters, x = input dimension, y = width, z = height
+        self.filters = False
         self.stride = stride
         self.activation = activation
         self.padding = padding
         self.layer = self.layer_name()
-        self.kernel = np.random.rand(kernel_len, *kernel_dim)
         self.output = []
         self.output_w_activation = []
         self.d1z = []
@@ -21,6 +24,8 @@ class ConvLayer:
     def set_inp(self, inp):
         self.inp = inp
         self.inp_w_pad = self.set_padding(inp, self.padding)
+        if type(self.filters) == bool:
+            self.filters = np.random.rand(self.filter_len, inp.shape[0], *self.kernel_size)
 
     def layer_name(self):
         global c_layer
@@ -52,37 +57,32 @@ class ConvLayer:
 
     # cross-correlation
     def forward(self):
-        # y_size = floor(((x+2p-f+1)+1) / s)
-        output_size_x = math.floor( (self.inp.shape[1] + (2*self.padding) - self.kernel_dim[0]) / self.stride ) + 1
-        output_size_y = math.floor( (self.inp.shape[2] + (2*self.padding) - self.kernel_dim[1]) / self.stride ) + 1
-        output_depth = 0
-        output = np.zeros(( (self.inp.shape[0] * self.kernel_len), output_size_x, output_size_y), dtype=float)
-        kernel = np.copy(self.kernel)
+        output_size_x = math.floor( (self.inp.shape[1] + (2*self.padding) - self.filters.shape[2]) / self.stride ) + 1
+        output_size_y = math.floor( (self.inp.shape[2] + (2*self.padding) - self.filters.shape[3]) / self.stride ) + 1
+        output = np.zeros(( self.filters.shape[0], output_size_x, output_size_y), dtype=float)
         inp_w_pad = np.copy(self.inp_w_pad)
 
-        ### loop for all images
-        for z in range(self.inp.shape[0]): 
-            for x in range(self.kernel_len):
+        for x in range(self.filters.shape[0]):
+            filter = np.array(self.filters[x], copy=True)
 
-                for k in range(output_size_x):
-                    for l in range(output_size_y):
+            for k in range(output_size_x):
+                for l in range(output_size_y):
+                    convo = 0
 
-                        ### loop for strading
-                        convo = 0
+                    for i in range(filter.shape[1]):
+                        for j in range(filter.shape[2]):
 
-                        for i in range(self.kernel_dim[0]):
-                            for j in range(self.kernel_dim[1]):
-
-                                ### loop for convolution
-                                convo += self.kernel[x][i][j] * self.inp_w_pad[z][k*self.stride+i][l*self.stride+j]
-
-                        output[output_depth][k][l]=convo
-                output_depth += 1
+                            for y in range(self.filters.shape[1]):
+                                convo += filter[y][i][j] * self.inp_w_pad[y][k*self.stride+i][l*self.stride+j]
+                    
+                    output[x][k][l] = convo
 
         self.output = np.array(output, copy=True)
         output_w_activation = self.relu(output)
         self.output_w_activation = np.array(output_w_activation, copy=True)
         return output_w_activation
+
+        
 
     def backward_relu(self, da):
         inp = np.copy(self.output)
@@ -90,55 +90,58 @@ class ConvLayer:
         dz[inp <= 0] = 0
         return dz
     
-    def backward_kernel(self, da):    
-        inp = np.array(self.inp_w_pad, copy= True)
+    def backward_filters(self, da):
+        dfilters = np.zeros((self.filters.shape), dtype=float)
 
-        nH = math.floor((inp.shape[1] - da.shape[1]) / self.stride + 1)
-        nW = math.floor((inp.shape[2] - da.shape[2]) / self.stride + 1)
-        output = np.zeros((self.kernel.shape[0], nH, nW), dtype=float)
-        
-        for z in range(inp.shape[0]):
-            for x in range(output.shape[0]): 
+        for x in range(da.shape[0]):
+            # da.shape[0] === self.filters.shape[0] 
 
-                for k in range(nH):
-                    for l in range(nW):
+            for y in range(self.inp_w_pad.shape[0]):
+                # da.inp_w_pad.shape[0] === self.filters.shape[1]
+                inp_w_pad = np.array(self.inp_w_pad, copy=True)
+
+                for k in range(self.filters.shape[2]):
+                    for l in range(self.filters.shape[3]):
                         convo = 0
-
-                        for i in range(da.shape[1]):                
+                        for i in range(da.shape[1]):
                             for j in range(da.shape[2]):
-
-                                convo +=  inp[z][k * self.stride + i][l * self.stride + j] * da[x][i][j]
-                        output[x][k][l]=convo   
-        return output    
+                                convo +=  inp_w_pad[y][k * self.stride + i][l * self.stride + j] * da[x][i][j]
+                        dfilters[x][y][k][l] = convo
+        
+        dfilters = np.array(dfilters, copy=True)
+        return dfilters
+                        
 
 
     def backward_input(self, da):
-        kernel = np.array(self.kernel, copy=True)
-        nH = math.floor((kernel.shape[1] + da.shape[1]) / self.stride - 1)
-        nW = math.floor((kernel.shape[2] + da.shape[2]) / self.stride - 1)
-        inp_len = math.floor(da.shape[0] / kernel.shape[0])
-        inp = np.zeros((inp_len, nH, nW), dtype=float)
+        inp = np.zeros((self.inp_w_pad.shape), dtype=float)
+        filters180 = np.rot90(np.array(self.filters, copy=True), 2, axes=(2,3))
 
-        for x in range(inp_len):
-            lnf_rand = random.randint(0, kernel.shape[0]-1)
-            kernelx = np.rot90(kernel[lnf_rand], 2)
-            kernelx = np.pad(kernelx, ((da.shape[1]-1, da.shape[1]-1),(da.shape[2]-1, da.shape[2]-1)), 'constant')
-            for k in range(nH):
-                for l in range(nW):
+        pad_size = filters180.shape[2] - 1
+        da_w_pad = np.pad(np.array(da, copy=True), pad_width=((0,0),(pad_size,pad_size),(pad_size,pad_size)), mode='constant')
+
+        irand = random.randint(0, da.shape[0]-1)
+        
+        for x in range(self.inp_w_pad.shape[0]):
+
+            for k in range(self.inp_w_pad.shape[1]):
+                for l in range(self.inp_w_pad.shape[2]):
                     convo = 0
-                    for i in range(da.shape[1]):
-                        for j in range(da.shape[2]):
-                            convo +=  da[x * kernel.shape[0] + lnf_rand][i][j] * kernelx[k*self.stride+i][l*self.stride+j]
-                    inp[x][(nH-1)-k][(nW-1)-l] = convo
-        return inp
+                    for i in range(filters180.shape[2]):
+                        for j in range(filters180.shape[3]):
+                            convo += da_w_pad[irand][k * self.stride + i][l * self.stride + j] * filters180[irand][x][i][j]
+                    inp[x][k][l] = convo
+
+        dinp = self.unpad(inp)
+        return dinp
 
     def backward(self, da):
         dc = self.backward_relu(da)
         di = self.backward_input(dc)
-        return self.unpad(di)
+        return di
     
     def grad_function(self, dz):
-        dk = self.backward_kernel(dz)
+        dk = self.backward_filters(dz)
         return dk
 
 

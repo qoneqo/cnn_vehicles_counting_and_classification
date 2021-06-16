@@ -4,10 +4,10 @@ import math
 m_layer = chr(ord('A')-1)
 
 class MaxPoolLayer:
-    def __init__(self, pool_dim, padding = 0, stride = 2):        
+    def __init__(self, pool_size, padding = 0, stride = 2):        
         self.padding = padding
         self.stride = stride
-        self.pool_dim = pool_dim
+        self.pool_size = (pool_size, pool_size)
         self.max_pool_index = []
         self.layer = self.layer_name()
         self.output = []
@@ -33,8 +33,8 @@ class MaxPoolLayer:
             return inp
         
     def forward(self):
-        output_size_x = math.floor( (self.inp.shape[1] + (2*self.padding) - self.pool_dim[0]) / self.stride ) + 1
-        output_size_y = math.floor( (self.inp.shape[2] + (2*self.padding) - self.pool_dim[1]) / self.stride ) + 1
+        output_size_x = math.floor( (self.inp.shape[1] + (2*self.padding) - self.pool_size[0]) / self.stride ) + 1
+        output_size_y = math.floor( (self.inp.shape[2] + (2*self.padding) - self.pool_size[1]) / self.stride ) + 1
         output = np.zeros(( (self.inp.shape[0]), output_size_x, output_size_y), dtype=float)
         max_pool_index = []
         inp = np.copy(self.inp)
@@ -44,8 +44,8 @@ class MaxPoolLayer:
                 for l in  range(output_size_y):
                     maks = 0
 
-                    for i in range(self.pool_dim[0]) :
-                        for j in range(self.pool_dim[1]) :
+                    for i in range(self.pool_size[0]) :
+                        for j in range(self.pool_size[1]) :
                             val = inp[x][k * self.stride + i][l * self.stride + j]
                             if maks <= val:
                                 maks = val
@@ -68,4 +68,4 @@ class MaxPoolLayer:
 
         return inp
 
-# pool = MaxPoolLayer(z, pool_dim = (2,2), padding = 1, stride = 2)
+# pool = MaxPoolLayer(z, pool_size = (2,2), padding = 1, stride = 2)

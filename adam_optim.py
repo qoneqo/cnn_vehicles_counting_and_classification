@@ -1,6 +1,6 @@
 import numpy as np
 class AdamOptim():
-    def __init__(self, params_len, eta=0.1, beta1=0.9, beta2=0.999, epsilon=1e-8):
+    def __init__(self, params_len, eta=0.01, beta1=0.9, beta2=0.999, epsilon=1e-8):
         self.params_len = params_len
         self.m_d = []
         self.v_d = []
