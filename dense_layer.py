@@ -8,12 +8,13 @@ class DenseLayer:
         self.inp_size = inp_size
         self.output_size = output_size
         self.activation = activation
-        self.weight = np.random.rand(output_size, inp_size) 
-        self.bias = np.random.rand(output_size, 1)
+        self.weight = np.random.randn(output_size, inp_size) * np.sqrt(1/output_size)
+        self.bias = np.full((output_size,1), 0)
         self.output = []
         self.output_w_activation = []
         self.layer = self.layer_name()
         self.d1z = []
+
     def set_inp(self, inp):
         self.inp = inp
         
@@ -27,17 +28,20 @@ class DenseLayer:
         return np.maximum(0,inp)
 
     def softmax(self, inp):
-        f = np.exp(inp - np.max(inp))  # shift values
-        return f / f.sum(axis=0)
+        # inp -= np.max(inp)
+        z = np.exp(inp) / np.sum(np.exp(inp))
+        return z
 
     def relu_backward(self, dz):
         dz = np.array(dz, copy = True)
-        dz[self.output <= 0] = 0
-        return dz
+        # dz[self.output <= 0] = 0
+        dr = np.where(self.output>0, dz, 0)
+        return dr
 
     def softmax_backward(self, dz):
-        s = self.output.reshape(-1,1)
-        return np.dot((np.diagflat(s) - np.dot(s, s.T)), dz)
+        z = self.output_w_activation
+        ds = z * (dz - np.sum(dz * z))
+        return ds
 
     def forward(self):
         self.output = np.dot(self.weight, self.inp) + self.bias

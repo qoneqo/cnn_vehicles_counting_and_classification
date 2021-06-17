@@ -31,40 +31,55 @@ class MaxPoolLayer:
             return np.array(output)
         else:
             return inp
-        
+    
+    def unpad(self, inp):
+        out = []
+        for c in inp:
+            c = np.delete(c, -1, 0)
+            c = np.delete(c, 0, 0)
+            c = np.delete(c, -1, 1)
+            c = np.delete(c, 0, 1)
+            out.append(c)
+        return np.array(out)
+
     def forward(self):
         output_size_x = math.floor( (self.inp.shape[1] + (2*self.padding) - self.pool_size[0]) / self.stride ) + 1
         output_size_y = math.floor( (self.inp.shape[2] + (2*self.padding) - self.pool_size[1]) / self.stride ) + 1
-        output = np.zeros(( (self.inp.shape[0]), output_size_x, output_size_y), dtype=float)
+        output = np.zeros(( (self.inp.shape[0]), output_size_x, output_size_y))
         max_pool_index = []
-        inp = np.copy(self.inp)
+        inp = np.copy(self.inp_w_pad)
+        
         for x in range(self.inp.shape[0]):
 
             for k in range(output_size_x):
                 for l in  range(output_size_y):
-                    maks = 0
+                    # maks = 0 error
+                    maks = inp[x][k * self.stride][l * self.stride]
 
                     for i in range(self.pool_size[0]) :
                         for j in range(self.pool_size[1]) :
                             val = inp[x][k * self.stride + i][l * self.stride + j]
                             if maks <= val:
                                 maks = val
-                                max_pool_index = (x, (k * self.stride + i), (l * self.stride + j))
-                    output[x][k][l] = maks
+                                max_pool_index = [x, (k * self.stride + i), (l * self.stride + j)]
+                    
                     self.max_pool_index.append(max_pool_index)
+                    output[x][k][l] = maks
         self.output = output
         return output
 
     def backward(self, dz):
-        max_pool_index = self.max_pool_index
-        inp = np.copy(self.inp)
-        # inp = np.zeros(( self.inp.shape ), dtype=float)
+        # inp = np.copy(self.inp_w_pad)
+        inp = np.zeros(( self.inp_w_pad.shape ))
         d_pool_img = dz.flatten()
         for x in range(dz.shape[0]):
             d_pool_img_i = 0
-            for c in max_pool_index:
+            for c in self.max_pool_index:
                 inp[c[0]][c[1]][c[2]] = d_pool_img[d_pool_img_i]
                 d_pool_img_i += 1
+
+        if self.padding:
+            inp = self.unpad(inp)
 
         return inp
 

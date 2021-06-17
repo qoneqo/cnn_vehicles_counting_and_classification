@@ -2,11 +2,11 @@ from conv_layer import *
 from max_pool_layer import *
 from dense_layer import *
 from adam_optim import *
-from cv2 import cv2
 import pickle
+import os
 from tqdm import tqdm
 from random import shuffle
-import os
+from cv2 import cv2
 
 train_data = 'dataset/train'
 test_data = 'dataset/test'
@@ -70,10 +70,10 @@ class CNN:
     def __init__(self, architecture, inp, model = False):
         self.architecture = architecture
         self.inp = inp
-        self.i_adam = 0
         self.d = []
         self.true_values = []
         self.predictions = []
+        self.i_adam = 0
         
         if model == False:
             self.obj = self.init_obj_layer()
@@ -85,10 +85,10 @@ class CNN:
         for i, arch in enumerate(self.architecture):
             layer_type = arch['layer_type']
             if layer_type == 'conv':
-                obj = ConvLayer(filter_len=arch['filter_len'], kernel_size=arch['kernel_size'], stride=arch['stride'], activation=arch['activation'])
+                obj = ConvLayer(filter_len=arch['filter_len'], kernel_size=arch['kernel_size'], stride=arch['stride'], padding=arch['padding'], activation=arch['activation'])
 
             elif layer_type == 'max_pool':
-                obj = MaxPoolLayer(pool_size=arch['pool_size'], stride=arch['stride'])
+                obj = MaxPoolLayer(pool_size=arch['pool_size'], padding=arch['padding'], stride=arch['stride'])
 
             elif layer_type == 'flatten':
                 obj = 'flatten'
@@ -124,31 +124,35 @@ class CNN:
                 obj_selected.append(obj_select)
         self.i_adam += 1
         adam = AdamOptim(params_len=len(params))
-        params = adam.update(self.i_adam, params.copy(), params_d.copy())
+        params_updated = adam.update(params.copy(), params_d.copy(), self.i_adam)
         
-        for ob, par in zip(obj_selected, params):
+        for ob, par in zip(obj_selected, params_updated):
             setattr(ob['param'], ob['param_name'], par)
-            
+        
+
     def cross_entropy(self, actual, predicted):
-        predicted[predicted == 0] = 1e-8
-        output = -actual * np.log(predicted)
-        # loss = -np.sum(actual * np.log(predicted))
-        loss = np.sum(output)
-        return loss, output
+        predicted = predicted.clip(min=1e-8,max=None)
+        loss2 = np.where(actual==1, -np.sum(actual*np.log(predicted)), 0)
+        # loss = -np.sum(actual*np.log(predicted))
+        loss = np.sum(loss2)
+        return loss, loss2
     
-    def backward_cross_entropy(self, softmax_output, hot_vector):
-        dy = softmax_output - hot_vector
-        return dy 
+    def backward_cross_entropy(self, predicted, actual):
+        predicted = predicted.clip(min=1e-8,max=None)
+        # dy = predicted - actual
+        dy = np.where(actual==1,-1/predicted, 0)
+        return dy
 
 
     def train(self, out, epochs = 1):
-
-        self.true_values = []
-        self.predictions = []
-
         for ep in tqdm(range(epochs), desc='Epochs', leave=False):
-            for it in tqdm(range(out.shape[0]), desc='Iteration', leave='False'):
-                inp = np.array(self.inp[it],copy=True)
+            self.true_values = []
+            self.predictions = []
+            self.tloss = []
+            
+            tqdmit = tqdm(range(out.shape[0]), desc='Iteration', leave='False')
+            for it in tqdmit:
+                inp = np.array(self.inp[it],copy=True, dtype=np.float128)
                 
                 # print('Forward Prop...')
                 for i, obj in enumerate(self.obj):
@@ -160,9 +164,11 @@ class CNN:
                         inp = obj.forward()
                 
                 
-                loss, ce_z = cnn.cross_entropy(out[it], inp)
+                loss, loss2 = cnn.cross_entropy(out[it], inp)
                 dz = cnn.backward_cross_entropy(inp, out[it])
-                
+                self.tloss.append(loss)
+                tloss = sum(self.tloss)/len(self.tloss)
+
                 ### count accuracy
                 self.true_values.append(np.argmax(out[it].flatten()))
                 self.predictions.append(np.argmax(inp.flatten()))
@@ -173,13 +179,13 @@ class CNN:
                 N = len(true_values)
                 accuracy = (true_values == predictions).sum() / N
 
+                # tqdmit.set_description('Loss: '+  str(tloss)+ ' Accuracy: '+ str(accuracy))
                 print('\n\n')
                 print('=====================================================')
                 print('loss: ', loss, ' accuracy: ', accuracy)
-                print('actual: ', np.argmax(out[it].flatten()), ' predicted: ', np.argmax(inp.flatten()))
-                if ep == epochs-1 and it == out.shape[0]-1:
-                    break
-
+                print('actual: ', desc_predict(np.argmax(out[it].flatten())), ' predicted: ', desc_predict(np.argmax(inp.flatten())))
+                # if ep == epochs-1 and it == out.shape[0]-1:
+                #     break
                 # print('Backward Prop...')
                 for i, obj in reversed(list(enumerate(self.obj))):
                     if obj == 'flatten':
@@ -189,56 +195,86 @@ class CNN:
                         if i == 0:
                             break
                         dz = obj.backward(dz)
+                # print(self.obj[4].filters[1][1])
 
                 # print('Update Params...')
                 self.update()
-        # Saving the objects:
-        f = open('model-5.pckl', 'wb')
-        pickle.dump(self.obj, f)
+
+            # Saving the objects:
+            f = open('model-2.pckl', 'wb')
+            pickle.dump(self.obj, f)
+            f.close()
+
+            # print(self.obj[4].filters[1][1])
+
+
+    def predict(self, img):
+        f = open('model.pckl', 'rb')
+        obj = pickle.load(f)
         f.close()
 
+        img = cv2.resize(img, (64, 64))
+        inp = np.array([img / 255])
+
+        for i, obj in enumerate(self.obj):
+            if obj == 'flatten':
+                inp = np.reshape(inp, (math.prod(inp.shape), 1))
+                self.d = np.random.rand(inp.shape[0], inp.shape[1])
+            else:
+                obj.set_inp(inp)
+                inp = obj.forward()
+
+        return desc_predict(np.argmax(inp.flatten()))
+                
+        
 
 
 architecture = [
-    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'activation': 'relu'},
-    {'layer_type': 'max_pool',  'pool_size': 3,    'stride': 3},
+    {'layer_type': 'conv',      'filter_len': 2,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
     
-    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'activation': 'relu'},
-    {'layer_type': 'max_pool',  'pool_size': 3,    'stride': 3},
-    
-    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'activation': 'relu'},
-    {'layer_type': 'max_pool',  'pool_size': 3,    'stride': 3},
-    
+    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
+
+    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
+
     {'layer_type': 'flatten'},
     
-    {'layer_type': 'dense',     'input_size': 32,  'output_size': 12,  'activation': 'relu'},
-    {'layer_type': 'dense',     'input_size': 12,   'output_size': 4,   'activation': 'softmax'},
+    {'layer_type': 'dense',     'input_size': 512,   'output_size': 256,   'activation': 'relu'},
+    {'layer_type': 'dense',     'input_size': 256,   'output_size': 27,   'activation': 'relu'},
+    {'layer_type': 'dense',     'input_size': 27,   'output_size': 4,   'activation': 'softmax'},
 ]
 
-# x = cv2.imread('mobil-penumpang.6.png', cv2.IMREAD_GRAYSCALE) / 255
-# x = cv2.resize(x, (64, 64))
-# x = np.array([x])
-# y = np.array([
-#     [
-#         [0],
-#         [0],
-#         [1],
-#         [0],
-#     ]
-# ])
 
-# cnn = CNN(architecture, np.array([x]))
-# predicted = cnn.train(np.array(y), epochs=100)
-
-
-f = open('model-4.pckl', 'rb')
-obj = pickle.load(f)
+f = open('model.pckl', 'rb')
+model = pickle.load(f)
 f.close()
-
 # x = w,x,y,z
 # y = x,y,z
-cnn = CNN(architecture, np.array(tr_img_data))
-predicted = cnn.train(np.array(tr_lbl_data), epochs=15)
+img1 = cv2.imread('dataset2/sepeda-motor.png', cv2.IMREAD_GRAYSCALE) / 255
+img1 = cv2.resize(img1, (64, 64))
+img2 = cv2.imread('dataset2/sepeda.png', cv2.IMREAD_GRAYSCALE) / 255
+img2 = cv2.resize(img2, (64, 64))
+img3 = cv2.imread('dataset2/mobil-penumpang.png', cv2.IMREAD_GRAYSCALE) / 255
+img3 = cv2.resize(img3, (64, 64))
+img4 = cv2.imread('dataset2/mobil-barang.png', cv2.IMREAD_GRAYSCALE) / 255
+img4 = cv2.resize(img4, (64, 64))
+x = np.array([
+    np.array([img1]),
+    np.array([img2]),
+    np.array([img3]),
+    np.array([img4]),
+])
+y = np.array([
+    [[1], [0], [0], [0]],
+    [[0], [1], [0], [0]],
+    [[0], [0], [1], [0]],
+    [[0], [0], [0], [1]]
+])     
+# y = np.reshape(y, (1, 4, 1))
+cnn = CNN(architecture, np.array(tr_img_data), model)
+cnn.train(np.array(tr_lbl_data), epochs=50)
 
 
 # mobil barang: 28

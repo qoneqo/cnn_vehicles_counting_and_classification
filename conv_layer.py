@@ -25,7 +25,7 @@ class ConvLayer:
         self.inp = inp
         self.inp_w_pad = self.set_padding(inp, self.padding)
         if type(self.filters) == bool:
-            self.filters = np.random.rand(self.filter_len, inp.shape[0], *self.kernel_size)
+            self.filters = np.random.randn(self.filter_len, inp.shape[0], *self.kernel_size) * np.sqrt(1/9)
 
     def layer_name(self):
         global c_layer
@@ -42,14 +42,17 @@ class ConvLayer:
             return inp
     
     def unpad(self, inp):
-        out = []
-        for c in inp:
-            c = np.delete(c, -1, 0)
-            c = np.delete(c, 0, 0)
-            c = np.delete(c, -1, 1)
-            c = np.delete(c, 0, 1)
-            out.append(c)
-        return np.array(out)
+        if self.padding != 1:
+            return np.array(inp)
+        else:
+            out = []
+            for c in inp:
+                c = np.delete(c, -1, 0)
+                c = np.delete(c, 0, 0)
+                c = np.delete(c, -1, 1)
+                c = np.delete(c, 0, 1)
+                out.append(c)
+            return np.array(out)
 
     
     def relu(self, inp):
@@ -59,7 +62,7 @@ class ConvLayer:
     def forward(self):
         output_size_x = math.floor( (self.inp.shape[1] + (2*self.padding) - self.filters.shape[2]) / self.stride ) + 1
         output_size_y = math.floor( (self.inp.shape[2] + (2*self.padding) - self.filters.shape[3]) / self.stride ) + 1
-        output = np.zeros(( self.filters.shape[0], output_size_x, output_size_y), dtype=float)
+        output = np.zeros(( self.filters.shape[0], output_size_x, output_size_y))
         inp_w_pad = np.copy(self.inp_w_pad)
 
         for x in range(self.filters.shape[0]):
@@ -80,18 +83,15 @@ class ConvLayer:
         self.output = np.array(output, copy=True)
         output_w_activation = self.relu(output)
         self.output_w_activation = np.array(output_w_activation, copy=True)
-        return output_w_activation
+        return output_w_activation        
 
-        
-
-    def backward_relu(self, da):
-        inp = np.copy(self.output)
-        dz = np.array(da, copy = True)
-        dz[inp <= 0] = 0
-        return dz
+    def backward_relu(self, dz):
+        dz = np.array(dz, copy = True)
+        dr = np.where(self.output>0, dz, 0)
+        return dr
     
     def backward_filters(self, da):
-        dfilters = np.zeros((self.filters.shape), dtype=float)
+        dfilters = np.zeros((self.filters.shape))
 
         for x in range(da.shape[0]):
             # da.shape[0] === self.filters.shape[0] 
@@ -114,14 +114,14 @@ class ConvLayer:
 
 
     def backward_input(self, da):
-        inp = np.zeros((self.inp_w_pad.shape), dtype=float)
+        inp = np.zeros((self.inp_w_pad.shape))
         filters180 = np.rot90(np.array(self.filters, copy=True), 2, axes=(2,3))
 
         pad_size = filters180.shape[2] - 1
         da_w_pad = np.pad(np.array(da, copy=True), pad_width=((0,0),(pad_size,pad_size),(pad_size,pad_size)), mode='constant')
 
         irand = random.randint(0, da.shape[0]-1)
-        
+
         for x in range(self.inp_w_pad.shape[0]):
 
             for k in range(self.inp_w_pad.shape[1]):
@@ -132,7 +132,9 @@ class ConvLayer:
                             convo += da_w_pad[irand][k * self.stride + i][l * self.stride + j] * filters180[irand][x][i][j]
                     inp[x][k][l] = convo
 
-        dinp = self.unpad(inp)
+        if self.padding:
+            dinp = self.unpad(inp)
+
         return dinp
 
     def backward(self, da):
