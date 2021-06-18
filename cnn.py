@@ -163,7 +163,6 @@ class CNN:
                         obj.set_inp(inp)
                         inp = obj.forward()
                 
-                
                 loss, loss2 = cnn.cross_entropy(out[it], inp)
                 dz = cnn.backward_cross_entropy(inp, out[it])
                 self.tloss.append(loss)
@@ -207,12 +206,48 @@ class CNN:
 
             # print(self.obj[4].filters[1][1])
 
+    def test(self, out, epochs = 1):
+        self.true_values = []
+        self.predictions = []
+        self.tloss = []
+        
+        tqdmit = tqdm(range(out.shape[0]), desc='Iteration', leave='False')
+        for it in tqdmit:
+            inp = np.array(self.inp[it],copy=True, dtype=np.float128)
+            
+            # print('Forward Prop...')
+            for i, obj in enumerate(self.obj):
+                if obj == 'flatten':
+                    inp = np.reshape(inp, (math.prod(inp.shape), 1))
+                    self.d = np.random.rand(inp.shape[0], inp.shape[1])
+                else:
+                    obj.set_inp(inp)
+                    inp = obj.forward()
+            
+            
+            loss, loss2 = cnn.cross_entropy(out[it], inp)
+            dz = cnn.backward_cross_entropy(inp, out[it])
+            self.tloss.append(loss)
+            tloss = sum(self.tloss)/len(self.tloss)
+
+            ### count accuracy
+            self.true_values.append(np.argmax(out[it].flatten()))
+            self.predictions.append(np.argmax(inp.flatten()))
+
+            true_values = np.array(self.true_values, copy=True)
+            predictions = np.array(self.predictions, copy=True)
+
+            N = len(true_values)
+            accuracy = (true_values == predictions).sum() / N
+
+            # tqdmit.set_description('Loss: '+  str(tloss)+ ' Accuracy: '+ str(accuracy))
+            print('\n\n')
+            print('=====================================================')
+            print('loss: ', loss, ' accuracy: ', accuracy)
+            print('actual: ', desc_predict(np.argmax(out[it].flatten())), ' predicted: ', desc_predict(np.argmax(inp.flatten())))
+            
 
     def predict(self, img):
-        f = open('model.pckl', 'rb')
-        obj = pickle.load(f)
-        f.close()
-
         img = cv2.resize(img, (64, 64))
         inp = np.array([img / 255])
 
@@ -227,6 +262,15 @@ class CNN:
         return desc_predict(np.argmax(inp.flatten()))
                 
         
+
+
+f = open('model-2.pckl', 'rb')
+model = pickle.load(f)
+f.close()
+
+# cnn = CNN(False, np.array(tst_img_data), model)
+# cnn.test(np.array(tst_lbl_data))
+
 
 
 architecture = [
@@ -246,10 +290,6 @@ architecture = [
     {'layer_type': 'dense',     'input_size': 27,   'output_size': 4,   'activation': 'softmax'},
 ]
 
-
-f = open('model.pckl', 'rb')
-model = pickle.load(f)
-f.close()
 # x = w,x,y,z
 # y = x,y,z
 img1 = cv2.imread('dataset2/sepeda-motor.png', cv2.IMREAD_GRAYSCALE) / 255
@@ -272,13 +312,14 @@ y = np.array([
     [[0], [0], [1], [0]],
     [[0], [0], [0], [1]]
 ])     
-# y = np.reshape(y, (1, 4, 1))
-cnn = CNN(architecture, np.array(tr_img_data), model)
-cnn.train(np.array(tr_lbl_data), epochs=50)
+# cnn = CNN(architecture, np.array(x))
+# cnn.train(np.array(y), epochs=50)
 
+
+cnn = CNN(architecture, np.array(tr_img_data))
+cnn.train(np.array(tr_lbl_data), epochs=50)
 
 # mobil barang: 28
 # mobil penumpang: 147
 # sepeda motor: 139
 # sepeda : 139
-

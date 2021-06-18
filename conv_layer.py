@@ -25,7 +25,7 @@ class ConvLayer:
         self.inp = inp
         self.inp_w_pad = self.set_padding(inp, self.padding)
         if type(self.filters) == bool:
-            self.filters = np.random.randn(self.filter_len, inp.shape[0], *self.kernel_size) * np.sqrt(1/9)
+            self.filters = np.random.randn(self.filter_len, inp.shape[0], *self.kernel_size) * np.sqrt(1/(self.kernel_size[0] * self.kernel_size[1]))
 
     def layer_name(self):
         global c_layer
@@ -54,7 +54,6 @@ class ConvLayer:
                 out.append(c)
             return np.array(out)
 
-    
     def relu(self, inp):
         return np.maximum(0,inp)
 
@@ -111,8 +110,6 @@ class ConvLayer:
         dfilters = np.array(dfilters, copy=True)
         return dfilters
                         
-
-
     def backward_input(self, da):
         inp = np.zeros((self.inp_w_pad.shape))
         filters180 = np.rot90(np.array(self.filters, copy=True), 2, axes=(2,3))

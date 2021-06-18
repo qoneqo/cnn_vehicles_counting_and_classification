@@ -20,12 +20,13 @@ class AdamOptim():
             ## momentum beta 1
             self.m_d[i] = self.beta1*self.m_d[i] + (1-self.beta1)*params_d[i]
             
-            self.v_d[i] = self.beta2*self.v_d[i] + (1-self.beta2)*(params_d[i]**2)
             ## rms beta 2
+            self.v_d[i] = self.beta2*self.v_d[i] + (1-self.beta2)*(params_d[i]**2)
             
             ## bias correction
             m_d_corr.append(self.m_d[i]/(1-self.beta1**t))
             v_d_corr.append(self.v_d[i]/(1-self.beta2**t))
+
             ## update weights and biases
             params[i] = params[i] - self.eta*(m_d_corr[i]/(np.sqrt(v_d_corr[i])+self.epsilon))
         # print(params[2][1])

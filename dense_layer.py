@@ -28,7 +28,7 @@ class DenseLayer:
         return np.maximum(0,inp)
 
     def softmax(self, inp):
-        # inp -= np.max(inp)
+        inp -= np.max(inp)
         z = np.exp(inp) / np.sum(np.exp(inp))
         return z
 
