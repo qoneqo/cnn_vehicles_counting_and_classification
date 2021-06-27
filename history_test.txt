@@ -1,0 +1,6 @@
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        54,                5,           1], 
+    ['Sepeda',              1,                 58,          1], 
+    ['Mobil Penumpang',     13,                 3,          44]
+]

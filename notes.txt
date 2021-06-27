@@ -1,4 +1,4 @@
-###best model ever seen
+###model-2.pckl
 architecture = [
     {'layer_type': 'conv',      'filter_len': 2,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
     {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
@@ -15,3 +15,39 @@ architecture = [
     {'layer_type': 'dense',     'input_size': 256,   'output_size': 27,   'activation': 'relu'},
     {'layer_type': 'dense',     'input_size': 27,   'output_size': 4,   'activation': 'softmax'},
 ]
+
+###model-3.pckl
+architecture = [
+    {'layer_type': 'conv',      'filter_len': 2,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
+    
+    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
+
+    {'layer_type': 'conv',      'filter_len': 8,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
+
+    {'layer_type': 'conv',      'filter_len': 12,        'kernel_size': 3, 'stride': 1, 'padding': 1, 'activation': 'relu'},
+    {'layer_type': 'max_pool',  'pool_size': 2,    'stride': 2, 'padding': 0},
+
+    {'layer_type': 'flatten'},
+    
+    {'layer_type': 'dense',     'input_size': 192,   'output_size': 80,   'activation': 'relu'},
+    {'layer_type': 'dense',     'input_size': 80,   'output_size': 27,   'activation': 'relu'},
+    {'layer_type': 'dense',     'input_size': 27,   'output_size': 4,   'activation': 'softmax'},
+]
+
+
+Metodologi penelitian
+
+Metodologi Model CNN:
+1. Pengumpulan Data, 
+2. Praprocessing,
+3a. Perancangan CNN, 
+3b. Data Training, 
+3c. Data Testing,
+4ab, Pengujian Model,
+5, Akurasi Hasil,
+
+Metodologi Main Program:
+1. 

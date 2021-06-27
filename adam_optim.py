@@ -1,4 +1,5 @@
 import numpy as np
+
 class AdamOptim():
     def __init__(self, params_len, eta=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
         self.params_len = params_len

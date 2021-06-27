@@ -1,28 +1,19 @@
 import numpy as np
 import math
 
-d_layer = chr(ord('A')-1)
-
 class DenseLayer:
     def __init__(self, inp_size, output_size, activation = 'relu'):        
         self.inp_size = inp_size
         self.output_size = output_size
         self.activation = activation
-        self.weight = np.random.randn(output_size, inp_size) * np.sqrt(1/output_size)
-        self.bias = np.full((output_size,1), 0)
+        self.weight = np.random.randn(output_size, inp_size) * np.sqrt(1/output_size, dtype="float64")
+        self.bias = np.full((output_size,1), 0, dtype="float64")
         self.output = []
         self.output_w_activation = []
-        self.layer = self.layer_name()
         self.d1z = []
 
     def set_inp(self, inp):
         self.inp = inp
-        
-
-    def layer_name(self):
-        global d_layer
-        d_layer = chr(ord(d_layer) + 1) 
-        return 'D'+d_layer
 
     def relu(self, inp):
         return np.maximum(0,inp)

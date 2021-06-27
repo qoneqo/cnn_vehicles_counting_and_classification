@@ -3,8 +3,6 @@ import math
 from tqdm import tqdm
 import random
 
-c_layer = chr(ord('A')-1)
-
 class ConvLayer:    
     def __init__(self, filter_len, kernel_size, stride = 1, padding  = 1, activation = 'relu'):
         self.filter_len = filter_len
@@ -16,7 +14,6 @@ class ConvLayer:
         self.stride = stride
         self.activation = activation
         self.padding = padding
-        self.layer = self.layer_name()
         self.output = []
         self.output_w_activation = []
         self.d1z = []
@@ -25,13 +22,8 @@ class ConvLayer:
         self.inp = inp
         self.inp_w_pad = self.set_padding(inp, self.padding)
         if type(self.filters) == bool:
-            self.filters = np.random.randn(self.filter_len, inp.shape[0], *self.kernel_size) * np.sqrt(1/(self.kernel_size[0] * self.kernel_size[1]))
+            self.filters = np.random.randn(self.filter_len, inp.shape[0], *self.kernel_size) * np.sqrt(1/(self.kernel_size[0] * self.kernel_size[1]), dtype="float64")
 
-    def layer_name(self):
-        global c_layer
-        c_layer = chr(ord(c_layer) + 1)        
-        return 'C'+c_layer
-    
     def set_padding(self, inp, padding):
         if padding > 0:
             output = []
@@ -86,6 +78,7 @@ class ConvLayer:
 
     def backward_relu(self, dz):
         dz = np.array(dz, copy = True)
+        # dz[self.output <= 0] = 0
         dr = np.where(self.output>0, dz, 0)
         return dr
     

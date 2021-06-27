@@ -1,15 +1,12 @@
 import numpy as np
 import math
 
-m_layer = chr(ord('A')-1)
-
 class MaxPoolLayer:
     def __init__(self, pool_size, padding = 0, stride = 2):        
         self.padding = padding
         self.stride = stride
         self.pool_size = (pool_size, pool_size)
         self.max_pool_index = []
-        self.layer = self.layer_name()
         self.output = []
         self.d1z = []
 
@@ -18,11 +15,6 @@ class MaxPoolLayer:
         self.inp_w_pad = self.set_padding(inp, self.padding)
         self.max_pool_index = []
 
-    def layer_name(self):
-        global m_layer
-        m_layer = chr(ord(m_layer) + 1) 
-        return 'M'+m_layer
-    
     def set_padding(self, inp, padding):
         if padding > 0:
             output = []
