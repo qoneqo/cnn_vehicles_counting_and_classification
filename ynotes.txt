@@ -1,7 +1,8 @@
 vid 1 - 4   : 06-06-2021
 vid 5       : 02-06-2021
 vid 6 - 7   : 10-06-2021
-vid 8 - 9   : 11-06-2021
+vid 8       : 11-06-2021
+vid 9       : 02-06-2021
 vid 10      : 06-06-2021
 
 vid 1:
@@ -160,21 +161,21 @@ predicted {
 
 vid 9:
 actual {
-    sepeda motor: 57
+    sepeda motor: 96
     sepeda: 0
-    mobil penumpang: 15
+    mobil penumpang: 35
 }
 predicted {
-    sepeda motor: 52
-    sepeda: 22
-    mobil penumpang: 23
+    sepeda motor: 76
+    sepeda: 13
+    mobil penumpang: 37
 }
 [
     ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
-    ['Sepeda Motor',        39,                11,          5], 
+    ['Sepeda Motor',        63,                4,          3], 
     ['Sepeda',              0,                0,          0], 
-    ['Mobil Penumpang',     0,                3,          11],
-    ['Unknown Detected,     13,                8,          7]
+    ['Mobil Penumpang',     3,                2,          27],
+    ['Unknown Detected,     10,                7,          7]
 ]
 
 
