@@ -23,6 +23,7 @@ f = open('saved_model/model-2.pckl', 'rb')
 model = pickle.load(f)
 f.close()
 cnn = CNN(model=model)
+# cnn.train(epochs=20)
 cnn.test()
 # cnn.visualize()
 

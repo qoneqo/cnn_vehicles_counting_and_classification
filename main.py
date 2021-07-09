@@ -17,10 +17,10 @@ cnn = CNN(model=model)
 
 
 ### Read Video
-cap=cv2.VideoCapture("vid_samples/vid.1.mp4")
+cap=cv2.VideoCapture("vid_samples/vid.10.mp4")
 # cap=cv2.VideoCapture("rtsp://user:user123!@202.51.112.66:2215/Streaming/Channels/101/")
 
-object_detector = cv2.createBackgroundSubtractorMOG2(history=200)
+object_detector = cv2.createBackgroundSubtractorMOG2()
 _, frame = cap.read()
 l1 = 85
 l2 = 130
@@ -31,7 +31,7 @@ while(cap.isOpened()):
     frame = cv2.resize(frame, (800,400))
 
     # frame to roi
-    roi = frame[230: 400, 0: 800]
+    roi = frame[230: 400, 60: 800]
     # cv2.line(roi, (0, l1), (730,  l1), (128, 0, 128), 1)
     # cv2.line(roi, (0, l2), (730,  l2), (128, 0, 128), 1)
     

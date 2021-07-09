@@ -4,63 +4,195 @@ vid 6 - 7   : 10-06-2021
 vid 8 - 9   : 11-06-2021
 vid 10      : 06-06-2021
 
-vid 1: 
-actual {
-    sepeda motor: 13
-    sepeda: 11
-    mobil penumpang: 9
-}
-vid 2:
-actual {
-    sepeda motor: 56
-    sepeda: 17
-    mobil penumpang: 30
-}
-vid 3:
+vid 1:
 actual {
     sepeda motor: 15
     sepeda: 12
     mobil penumpang: 18
 }
+predicted {
+    sepeda motor: 18
+    sepeda: 23
+    mobil penumpang: 19
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        12,                3,           0], 
+    ['Sepeda',              0,                 10,          2], 
+    ['Mobil Penumpang',     1,                 3,          14],
+    ['Unknown Detected,     5,                 7,           3]
+]
+
+
+vid 2: 
+actual {
+    sepeda motor: 13
+    sepeda: 11
+    mobil penumpang: 9
+}
+predicted {
+    sepeda motor: 10
+    sepeda: 14
+    mobil penumpang: 10
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        9,                 2,           2], 
+    ['Sepeda',              0,                 7,           3], 
+    ['Mobil Penumpang',     1,                 5,           4],
+    ['Unknown Detected,     0,                 0,           0]
+]
+
+
+vid 3:
+actual {
+    sepeda motor: 56
+    sepeda: 17
+    mobil penumpang: 30
+}
+predicted {
+    sepeda motor: 32
+    sepeda: 38
+    mobil penumpang: 47
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        27,                9,          13], 
+    ['Sepeda',              0,                 16,          0], 
+    ['Mobil Penumpang',     1,                5,           23],
+    ['Unknown Detected,     4,                 8,           11]
+]
+
 vid 4:
 actual {
     sepeda motor: 30
     sepeda: 14
     mobil penumpang: 30
 }
+predicted {
+    sepeda motor: 25
+    sepeda: 17
+    mobil penumpang: 29
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        22,                2,          2], 
+    ['Sepeda',              0,                8,          0], 
+    ['Mobil Penumpang',     3,                2,          25],
+    ['Unknown Detected,     0,                5,          2]
+]
+
 vid 5:
 actual {
     sepeda motor: 64
     sepeda: 0
     mobil penumpang: 47
 }
+predicted {
+    sepeda motor: 42
+    sepeda: 23
+    mobil penumpang: 41
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        39,                12,          3], 
+    ['Sepeda',              0,                0,          0], 
+    ['Mobil Penumpang',     3,                1,          36],
+    ['Unknown Detected,     1,                10,          2]
+]
+
 vid 6:
 actual {
     sepeda motor: 39
     sepeda: 0
     mobil penumpang: 41
 }
+predicted {
+    sepeda motor: 60
+    sepeda: 21
+    mobil penumpang: 40
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        29,                1,          1], 
+    ['Sepeda',              0,                0,          0], 
+    ['Mobil Penumpang',     1,                6,          36],
+    ['Unknown Detected,     30,                14,          3]
+]
+
 vid 7:
 actual {
     sepeda motor: 5
     sepeda: 0
     mobil penumpang: 20
 }
+predicted {
+    sepeda motor: 8
+    sepeda: 18
+    mobil penumpang: 16
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        4,                1,          0], 
+    ['Sepeda',              0,                0,          0], 
+    ['Mobil Penumpang',     2,                3,          15],
+    ['Unknown Detected,     2,                15,          1]
+]
+
 vid 8:
 actual {
     sepeda motor: 57
     sepeda: 0
     mobil penumpang: 15
 }
+predicted {
+    sepeda motor: 52
+    sepeda: 22
+    mobil penumpang: 23
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        40,                10,          6], 
+    ['Sepeda',              0,                0,          0], 
+    ['Mobil Penumpang',     0,                3,          10],
+    ['Unknown Detected,     12,                9,          7]
+]
+
 vid 9:
 actual {
     sepeda motor: 57
     sepeda: 0
     mobil penumpang: 15
 }
+predicted {
+    sepeda motor: 52
+    sepeda: 22
+    mobil penumpang: 23
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        39,                11,          5], 
+    ['Sepeda',              0,                0,          0], 
+    ['Mobil Penumpang',     0,                3,          11],
+    ['Unknown Detected,     13,                8,          7]
+]
+
+
 vid 10:
 actual {
     sepeda motor: 33
     sepeda: 15
     mobil penumpang: 41
 }
+predicted {
+    sepeda motor: 32
+    sepeda: 26
+    mobil penumpang: 48
+}
+[
+    ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
+    ['Sepeda Motor',        24,                6,          3], 
+    ['Sepeda',              1,                10,          0], 
+    ['Mobil Penumpang',     1,                5,          37],
+    ['Unknown Detected,     6,                5,          8]
+]
