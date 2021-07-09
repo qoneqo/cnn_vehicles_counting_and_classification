@@ -1,0 +1,66 @@
+vid 1 - 4   : 06-06-2021
+vid 5       : 02-06-2021
+vid 6 - 7   : 10-06-2021
+vid 8 - 9   : 11-06-2021
+vid 10      : 06-06-2021
+
+vid 1: 
+actual {
+    sepeda motor: 13
+    sepeda: 11
+    mobil penumpang: 9
+}
+vid 2:
+actual {
+    sepeda motor: 56
+    sepeda: 17
+    mobil penumpang: 30
+}
+vid 3:
+actual {
+    sepeda motor: 15
+    sepeda: 12
+    mobil penumpang: 18
+}
+vid 4:
+actual {
+    sepeda motor: 30
+    sepeda: 14
+    mobil penumpang: 30
+}
+vid 5:
+actual {
+    sepeda motor: 64
+    sepeda: 0
+    mobil penumpang: 47
+}
+vid 6:
+actual {
+    sepeda motor: 39
+    sepeda: 0
+    mobil penumpang: 41
+}
+vid 7:
+actual {
+    sepeda motor: 5
+    sepeda: 0
+    mobil penumpang: 20
+}
+vid 8:
+actual {
+    sepeda motor: 57
+    sepeda: 0
+    mobil penumpang: 15
+}
+vid 9:
+actual {
+    sepeda motor: 57
+    sepeda: 0
+    mobil penumpang: 15
+}
+vid 10:
+actual {
+    sepeda motor: 33
+    sepeda: 15
+    mobil penumpang: 41
+}
