@@ -85,97 +85,97 @@ predicted {
 
 vid 5:
 actual {
-    sepeda motor: 64
-    sepeda: 0
-    mobil penumpang: 47
+    sepeda motor: 1
+    sepeda: 2
+    mobil penumpang: 9
 }
 predicted {
-    sepeda motor: 42
-    sepeda: 23
-    mobil penumpang: 41
+    sepeda motor: 1
+    sepeda: 2
+    mobil penumpang: 8
 }
 [
     ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
-    ['Sepeda Motor',        39,                12,          3], 
-    ['Sepeda',              0,                0,          0], 
-    ['Mobil Penumpang',     3,                1,          36],
-    ['Unknown Detected,     1,                10,          2]
+    ['Sepeda Motor',        1,                0,          0], 
+    ['Sepeda',              0,                2,          0], 
+    ['Mobil Penumpang',     0,                0,          8],
+    ['Unknown Detected,     0,                0,          0]
 ]
 
 vid 6:
 actual {
-    sepeda motor: 39
-    sepeda: 0
-    mobil penumpang: 41
+    sepeda motor: 10
+    sepeda: 6
+    mobil penumpang: 2
 }
 predicted {
-    sepeda motor: 60
-    sepeda: 21
-    mobil penumpang: 40
+    sepeda motor: 8
+    sepeda: 10
+    mobil penumpang: 5
 }
 [
     ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
-    ['Sepeda Motor',        29,                1,          1], 
-    ['Sepeda',              0,                0,          0], 
-    ['Mobil Penumpang',     1,                6,          36],
-    ['Unknown Detected,     30,                14,          3]
+    ['Sepeda Motor',        8,                2,          0], 
+    ['Sepeda',              0,                6,          0], 
+    ['Mobil Penumpang',     0,                0,          2],
+    ['Unknown Detected,     0,                2,          3]
 ]
 
 vid 7:
 actual {
-    sepeda motor: 5
-    sepeda: 0
-    mobil penumpang: 20
+    sepeda motor: 32
+    sepeda: 6
+    mobil penumpang: 11
 }
 predicted {
-    sepeda motor: 8
+    sepeda motor: 24
     sepeda: 18
-    mobil penumpang: 16
+    mobil penumpang: 15
 }
 [
     ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
-    ['Sepeda Motor',        4,                1,          0], 
+    ['Sepeda Motor',        0,                0,          0], 
     ['Sepeda',              0,                0,          0], 
-    ['Mobil Penumpang',     2,                3,          15],
-    ['Unknown Detected,     2,                15,          1]
+    ['Mobil Penumpang',     0,                0,          0],
+    ['Unknown Detected,     0,                0,          0]
 ]
 
 vid 8:
 actual {
-    sepeda motor: 57
-    sepeda: 0
-    mobil penumpang: 15
+    sepeda motor: 14
+    sepeda: 4
+    mobil penumpang: 2
 }
 predicted {
-    sepeda motor: 52
-    sepeda: 22
-    mobil penumpang: 23
+    sepeda motor: 18
+    sepeda: 7
+    mobil penumpang: 4
 }
 [
     ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
-    ['Sepeda Motor',        40,                10,          6], 
+    ['Sepeda Motor',        0,                0,          0], 
     ['Sepeda',              0,                0,          0], 
-    ['Mobil Penumpang',     0,                3,          10],
-    ['Unknown Detected,     12,                9,          7]
+    ['Mobil Penumpang',     0,                0,          0],
+    ['Unknown Detected,     0,                0,          0]
 ]
 
 vid 9:
 actual {
-    sepeda motor: 96
-    sepeda: 0
-    mobil penumpang: 35
+    sepeda motor: 2
+    sepeda: 5
+    mobil penumpang: 7
 }
 predicted {
-    sepeda motor: 76
-    sepeda: 13
-    mobil penumpang: 37
+    sepeda motor: 5
+    sepeda: 7
+    mobil penumpang: 4
 }
 [
     ['Conf Matrix',     'Sepeda Motor', 'Sepeda', 'Mobil Penumpang'], 
-    ['Sepeda Motor',        63,                4,          3], 
+    ['Sepeda Motor',        0,                0,          0], 
     ['Sepeda',              0,                0,          0], 
-    ['Mobil Penumpang',     3,                2,          27],
-    ['Unknown Detected,     10,                7,          7]
+    ['Mobil Penumpang',     0,                0,          0],
+    ['Unknown Detected,     0,                0,          0]
 ]
 
 
