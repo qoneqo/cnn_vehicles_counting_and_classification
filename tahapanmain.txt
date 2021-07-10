@@ -1,0 +1,89 @@
+##### Penentuan ROI
+cap=cv2.VideoCapture("vid_samples/vid.9.mp4")
+while(cap.isOpened()):
+    _, frame = cap.read()
+    frame = cv2.resize(frame, (800,400))
+    roi = frame[230: 400, 60: 800]
+    cv2.imshow('frame', frame)
+    cv2.imshow('roi', roi)
+
+#### Background Subtractor MOG2
+object_detector = cv2.createBackgroundSubtractorMOG2()
+while(cap.isOpened()):
+_, frame = cap.read()
+    frame = cv2.resize(frame, (800,400))
+    roi = frame[230: 400, 60: 800]
+    mask = object_detector.apply(roi)
+    cv2.imshow('frame', frame)
+    cv2.imshow('roi', roi)
+    cv2.imshow('mask', mask)
+
+#### Gaussian Blur
+blur = cv2.GaussianBlur(mask,(5,5),0)
+
+#### Otsu Thresholding
+h,mask = cv2.threshold(blur,0,250,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+#### Morfologi dilasi dan tertutup
+kernel = np.ones((2,2),np.uint8)
+mask = cv2.dilate(mask,kernel,iterations = 1)
+mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+
+#### Segmentasi dan Tracking Object menggunakan Euclidean Distance
+tracker = EuclideanDistTracker()
+l1 = 85
+l2 = 130
+obj_detections = []
+for cnt in contours:
+    area = cv2.contourArea(cnt)
+    if area > 550:
+        x, y, w, h = cv2.boundingRect(cnt)
+        cy = (y + y + h) // 2
+        if cy > l1 and cy < l2:
+            obj_detections.append([x,y,w,h])    
+tracker_obj = tracker.update(obj_detections)
+
+for bid in tracker_obj:
+    x,y,w,h,ids = bid
+    cv2.putText(roi, str(ids), (x+w, y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1.5, (0,0,240))
+cv2.imshow('frame', frame)
+cv2.imshow('roi', roi)
+
+#### Klasifikasi Objek menggunakan model CNN
+f = open('saved_model/model-2.pckl', 'rb')
+model = pickle.load(f)
+f.close()
+cnn = CNN(model=model)
+
+count = [0, 0, 0]
+prediction = ''
+classified = 0
+
+for bid in tracker_obj:
+    x,y,w,h,ids = bid
+
+    if classified < ids:
+        cx = (x + x + w) // 2
+        cy = (y + y + h) // 2
+        
+        img = cv2.cvtColor(roi[y:y+h, x:x+w], cv2.COLOR_BGR2GRAY)
+        prediction = cnn.predict(img)
+        cv2.line(roi, (0, (l1+((l2-l1)//2))), (800, (l1+((l2-l1)//2))), (255, 0, 0), 2)
+        cv2.putText(roi, prediction, (x, y+h-10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.75, (244,0,0))
+
+        if prediction == 'sepeda motor':
+            count[0] += 1
+        elif prediction == 'sepeda':
+            count[1] += 1
+        elif prediction == 'mobil penumpang':
+            count[2] += 1
+        cv2.circle(roi, (cx, cy), 4, (0, 244, 0), 2)
+        cv2.rectangle(roi, (x, y), (x+w, y+h), (0, 244, 0), 2)
+
+        classified += 1
+        
+cv2.putText(frame, 'sepeda motor: '+str(count[0]), (500, 20), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
+cv2.putText(frame, 'sepeda: '+str(count[1]), (500, 40), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
+cv2.putText(frame, 'mobil penumpang: '+str(count[2]), (500, 60), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
+
+cv2.imshow('frame', frame)

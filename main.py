@@ -24,7 +24,7 @@ object_detector = cv2.createBackgroundSubtractorMOG2()
 _, frame = cap.read()
 l1 = 85
 l2 = 130
-lend = 800
+# lend = 800
 while(cap.isOpened()):
     # video to frame
     _, frame = cap.read()
@@ -35,7 +35,7 @@ while(cap.isOpened()):
     # cv2.line(roi, (0, l1), (730,  l1), (128, 0, 128), 1)
     # cv2.line(roi, (0, l2), (730,  l2), (128, 0, 128), 1)
     
-    # preprocessing citra
+    # # preprocessing citra
     mask = object_detector.apply(roi)
     blur = cv2.GaussianBlur(mask,(5,5),0)
     h,mask = cv2.threshold(blur,0,250,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
@@ -62,13 +62,14 @@ while(cap.isOpened()):
 
     for bid in tracker_obj:
         x,y,w,h,ids = bid
+
         if classified < ids:
             cx = (x + x + w) // 2
             cy = (y + y + h) // 2
             
             img = cv2.cvtColor(roi[y:y+h, x:x+w], cv2.COLOR_BGR2GRAY)
             prediction = cnn.predict(img)
-            cv2.line(roi, (0, (l1+((l2-l1)//2))), (lend, (l1+((l2-l1)//2))), (255, 0, 0), 2)
+            cv2.line(roi, (0, (l1+((l2-l1)//2))), (800, (l1+((l2-l1)//2))), (255, 0, 0), 2)
             cv2.putText(roi, prediction, (x, y+h-10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.75, (244,0,0))
 
             if prediction == 'sepeda motor':
@@ -86,9 +87,9 @@ while(cap.isOpened()):
     cv2.putText(frame, 'sepeda: '+str(count[1]), (500, 40), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
     cv2.putText(frame, 'mobil penumpang: '+str(count[2]), (500, 60), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
 
-    cv2.imshow('roi', roi)
     cv2.imshow('frame', frame)
-    cv2.imshow('mask', mask)
+    cv2.imshow('roi', roi)
+    # cv2.imshow('mask', mask)
     to_xlsx.save_to_xlsx(count)
 
     key = cv2.waitKey(60)
