@@ -17,7 +17,7 @@ cnn = CNN(model=model)
 
 
 ### Read Video
-cap=cv2.VideoCapture("vid_samples/vid.9.mp4")
+cap=cv2.VideoCapture("vid_samples/vid.1.mp4")
 # cap=cv2.VideoCapture("rtsp://user:user123!@202.51.112.66:2215/Streaming/Channels/101/")
 
 object_detector = cv2.createBackgroundSubtractorMOG2()
