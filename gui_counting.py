@@ -27,8 +27,8 @@ class GUICounting:
         self.gui_frame_inp_22()
         self.gui_area_classification()
 
-        video_source = "vid_samples/vid.2.mp4"
-        self.core = Core(video_source)
+        self.core = Core()
+        
         # open video source 
         self.vid = self.core.main()
         
@@ -37,7 +37,7 @@ class GUICounting:
 
         self.gui_frame_3()
         self.gui_counting()
-        self.gui_button_1()
+        self.gui_button()
     
     ### FRAME 1.1 - INPUT SOURCE VIDEO
     def gui_frame_inp_11(self):
@@ -49,6 +49,7 @@ class GUICounting:
     def gui_source_vid(self):
         self.gui_label_source_vid()
         self.gui_entry_source_vid()
+        self.gui_btn_source_vid()
 
     def gui_label_source_vid(self):
         label = tk.Label(self.frame_inp_11, text="Input source video or RSTP Cred link: ")
@@ -56,11 +57,28 @@ class GUICounting:
 
     def gui_entry_source_vid(self):
         self.entry_source_vid = entry_source_vid = tk.Entry(self.frame_inp_11)
-        entry_source_vid.bind('<KeyRelease>', self.ev_entry_source_vid)
         entry_source_vid.pack(side=tk.LEFT, padx=10)
+        self.source_vid = default_source = 'vid_samples/vid.2.mp4'    
+
+        entry_source_vid.insert(0, str(self.source_vid))
+        entry_source_vid.bind('<KeyRelease>', self.ev_entry_source_vid)
 
     def ev_entry_source_vid(self, event):
-        print(self.entry_source_vid.get())
+        self.source_vid = self.entry_source_vid.get()
+        self.refresh_gui_counting(reload=True)
+
+    def gui_btn_source_vid(self):        
+        self.btn_source_vid = btn_source_vid = tk.Button(self.frame_inp_11, text='Browse', command=self.ev_btn_source_vid)
+        btn_source_vid.pack(side=tk.BOTTOM, padx=(0, 10))
+
+    def ev_btn_source_vid(self):
+        file_name = tk.filedialog.askopenfilename(parent=self.frame_inp_11, filetypes=[('Video File','*')], title='Plih model')
+        self.entry_source_vid.delete(0, tk.END)
+        self.entry_source_vid.insert(0, file_name)
+        self.entry_source_vid.xview(len(file_name))
+        self.source_vid = file_name
+        self.refresh_gui_counting(reload=True)
+
 
     ### FRAME 1.2 - PILIH MODEL
     def gui_frame_inp_12(self):
@@ -70,14 +88,36 @@ class GUICounting:
     def gui_pilih_model(self):
         self.gui_label_pilih_model()
         self.gui_entry_pilih_model()
+        self.gui_btn_pilih_model()
 
     def gui_label_pilih_model(self):
         label = tk.Label(self.frame_inp_12, text="Pilih Model: ")
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_pilih_model(self):
-        entry_source_vid = tk.Entry(self.frame_inp_12)
-        entry_source_vid.pack(side=tk.LEFT, padx=10)
+        self.entry_pilih_model = entry_pilih_model = tk.Entry(self.frame_inp_12)
+        entry_pilih_model.pack(side=tk.LEFT, padx=10)
+
+        self.pilih_model = default_model = 'saved_model/model-2.pckl'
+        entry_pilih_model.insert(0, default_model)
+
+        entry_pilih_model.bind('<KeyRelease>', self.ev_entry_pilih_model)
+
+    def ev_entry_pilih_model(self, event):
+        self.pilih_model = self.entry_pilih_model.get()
+        self.refresh_gui_counting(reload=True)
+
+    def gui_btn_pilih_model(self):        
+        self.btn_pilih_model = btn_pilih_model = tk.Button(self.frame_inp_12, text='Browse', command=self.ev_btn_pilih_model)
+        btn_pilih_model.pack(side=tk.LEFT, padx=(0, 10))
+
+    def ev_btn_pilih_model(self):
+        file_name = tk.filedialog.askopenfilename(parent=self.frame_inp_12, filetypes=[('Pickle File','*.pckl')], title='Plih model')
+        self.entry_pilih_model.delete(0, tk.END)
+        self.entry_pilih_model.insert(0, file_name)
+        self.entry_pilih_model.xview(len(file_name))
+        self.pilih_model = file_name
+        self.refresh_gui_counting(reload=True)
 
     ### FRAME 2.1 - INPUT ROI
     def gui_frame_inp_21(self):
@@ -108,36 +148,55 @@ class GUICounting:
 
     def gui_entry_roi_x1(self):
         self.entry_roi_x1 = entry_roi_x1 = tk.Entry(self.frame_inp_21_1, width=20)
-        entry_roi_x1.bind('<KeyRelease>', self.ev_entry_roi_x1)
         entry_roi_x1.pack(side=tk.LEFT, padx=10)
+        entry_roi_x1.insert(0, str(self.roi_x1))
+        entry_roi_x1.bind('<KeyRelease>', self.ev_entry_roi_x1)
 
     def ev_entry_roi_x1(self, event):
-        self.roi_x1 = self.entry_roi_x1.get()
-        self.reload_gui_counting()
+        self.roi_x1 = int(self.entry_roi_x1.get())
+        self.refresh_gui_counting()        
         
     def gui_label_roi_y1(self):
         label = tk.Label(self.frame_inp_21_1, text="Y1: ")
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_roi_y1(self):
-        entry_roi_x1 = tk.Entry(self.frame_inp_21_1, width=20)
-        entry_roi_x1.pack(side=tk.LEFT, padx=10)
+        self.entry_roi_y1 = entry_roi_y1 = tk.Entry(self.frame_inp_21_1, width=20)
+        entry_roi_y1.pack(side=tk.LEFT, padx=10)
+        entry_roi_y1.insert(0, str(self.roi_y1))
+        entry_roi_y1.bind('<KeyRelease>', self.ev_entry_roi_y1)
+
+    def ev_entry_roi_y1(self, event):
+        self.roi_y1 = int(self.entry_roi_y1.get())
+        self.refresh_gui_counting()
 
     def gui_label_roi_x2(self):
         label = tk.Label(self.frame_inp_21_2, text="X2: ")
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_roi_x2(self):
-        entry_roi_x2 = tk.Entry(self.frame_inp_21_2, width=20)
+        self.entry_roi_x2 = entry_roi_x2 = tk.Entry(self.frame_inp_21_2, width=20)
         entry_roi_x2.pack(side=tk.LEFT, padx=10)
+        entry_roi_x2.insert(0, str(self.roi_x2))
+        entry_roi_x2.bind('<KeyRelease>', self.ev_entry_roi_x2)
+
+    def ev_entry_roi_x2(self, event):
+        self.roi_x2 = int(self.entry_roi_x2.get())
+        self.refresh_gui_counting()
 
     def gui_label_roi_y2(self):
         label = tk.Label(self.frame_inp_21_2, text="Y2: ")
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_roi_y2(self):
-        entry_roi_x1 = tk.Entry(self.frame_inp_21_2, width=20)
-        entry_roi_x1.pack(side=tk.LEFT, padx=10)
+        self.entry_roi_y2 = entry_roi_y2 = tk.Entry(self.frame_inp_21_2, width=20)
+        entry_roi_y2.pack(side=tk.LEFT, padx=10)
+        entry_roi_y2.insert(0, str(self.roi_y2))
+        entry_roi_y2.bind('<KeyRelease>', self.ev_entry_roi_y2)
+
+    def ev_entry_roi_y2(self, event):
+        self.roi_y2 = int(self.entry_roi_y2.get())
+        self.refresh_gui_counting()
 
     ### FRAME 2.2 - INPUT AREA CLASSIFICATION
 
@@ -161,34 +220,48 @@ class GUICounting:
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_l1(self):
-        entry_l1 = tk.Entry(self.frame_inp_22_1, width=20)
+        self.entry_l1 = entry_l1 = tk.Entry(self.frame_inp_22_1, width=20)
         entry_l1.pack(side=tk.LEFT, padx=10)
+        entry_l1.insert(0, str(self.l1))
+        entry_l1.bind('<KeyRelease>', self.ev_entry_l1)
+
+    def ev_entry_l1(self, event):
+        self.l1 = int(self.entry_l1.get())
+        self.refresh_gui_counting()
 
     def gui_label_l2(self):
         label = tk.Label(self.frame_inp_22_2, text="L2: ")
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_l2(self):
-        entry_l2 = tk.Entry(self.frame_inp_22_2, width=20)
+        self.entry_l2 = entry_l2 = tk.Entry(self.frame_inp_22_2, width=20)
         entry_l2.pack(side=tk.LEFT, padx=10)
+        entry_l2.insert(0, str(self.l2))
+        entry_l2.bind('<KeyRelease>', self.ev_entry_l2)
 
-    ### FRAME 2.1 - INPUT ROI
+    def ev_entry_l2(self, event):
+        self.l2 = int(self.entry_l2.get())
+        self.refresh_gui_counting()
+
+    ### FRAME 3
     def gui_frame_3(self):
         self.frame_3 = tk.Frame(self.main_frame)
-        self.frame_3.pack(fill=tk.X, pady=(10, 15))
+        self.frame_3.pack(fill=tk.X)
 
-    def gui_counting(self):
-        # Create a canvas that can fit the above video source size        
+    def gui_counting(self, reload=False):
+
+        # Create a canvas that can fit the above video source size
         self.canvas = canvas = tk.Canvas(self.frame_3, width = 800, height = 400)
         canvas.config(highlightbackground="black")
         canvas.pack()
 
-        ret, frame = self.core.main()
+        # Jika reload false maka fungsi core main tidak dijalankan
+        if reload == False:
+            self.ret_counting, self.frame_counting = self.core.main()
 
-        if ret:
-            self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
+        if self.ret_counting:
+            self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(self.frame_counting))
             self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)
-            
             self.draw_line()
 
     def draw_line(self):
@@ -201,9 +274,9 @@ class GUICounting:
         # line classification area
         self.canvas.create_line(self.roi_x1, self.roi_y1 + self.l1, self.roi_x2, self.roi_y1 + self.l1, fill="green", width=2)
         self.canvas.create_line(self.roi_x1, self.roi_y1 + self.l2, self.roi_x2,  self.roi_y1 + self.l2, fill="green", width=2)
+        self.canvas.create_line(self.roi_x1, self.roi_y1 + (self.l1+((self.l2-self.l1)//2)), self.roi_x2, self.roi_y1 + (self.l1+((self.l2-self.l1)//2)), fill="black", width=2)
 
     def run_gui_counting(self):
-        # Get a frame from the video source
         ret, frame = self.core.main()
         if ret:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
@@ -214,15 +287,27 @@ class GUICounting:
             self.canvas.destroy()
     
     ### BUTTON PLAY
-    def gui_button_1(self):
-        self.button_1 = button_1 = tk.Button(self.frame_3, text='Play Video', width=25, command=self.run_gui_counting)
-        button_1.pack()
+    def gui_button(self):
+        self.frame_3_btn = tk.Frame(self.frame_3)
+        self.frame_3_btn.pack(fill=tk.X, pady=(10, 15))
 
-    def reload_gui_counting(self):
+        self.button_1 = button_1 = tk.Button(self.frame_3_btn, text='Play', width=25, command=self.run_gui_counting)
+        button_1.pack(side=tk.LEFT, padx=(0, 10))
+        
+        self.button_2 = button_2 = tk.Button(self.frame_3_btn, text='Next Frame', width=25, command=self.refresh_gui_counting)
+        button_2.pack(side=tk.LEFT, padx=(0, 10))
+
+    ### Reload untuk configurasi line
+    def refresh_gui_counting(self, reload=False):
         self.canvas.delete('all')
         self.canvas.destroy()
         self.button_1.destroy()
-        self.frame_3.destroy()        
+        self.frame_3.destroy()
+        self.set_core_config()
         self.gui_frame_3()
-        self.gui_counting()
-        self.gui_button_1()
+        self.gui_counting(reload=reload)
+        self.gui_button()
+        
+
+    def set_core_config(self):
+        self.core.set_config(video_source=self.source_vid, model=self.pilih_model, roi_x1=self.roi_x1, roi_x2=self.roi_x2, roi_y1=self.roi_y1, roi_y2=self.roi_y2, l1=self.l1, l2=self.l2)

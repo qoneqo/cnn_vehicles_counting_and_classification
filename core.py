@@ -6,23 +6,63 @@ from cnn import CNN
 from tracker import EuclideanDistTracker
 
 class Core:
-    def __init__(self, video_source):
+    def __init__(self):
         self.count = [0, 0, 0]
         self.prediction = ''
         self.classified = 0
         self.tracker = EuclideanDistTracker()
-        f = open('saved_model/model-2.pckl', 'rb')
-        model = pickle.load(f)
-        f.close()
-        self.cnn = CNN(model=model)
 
-        ### Read Video
-        self.cap=cv2.VideoCapture(video_source)
+        ### init config
+        self.init_config()
+
+        self.cnn = CNN(model=self.model)
         self.object_detector = cv2.createBackgroundSubtractorMOG2(history=200)
+    
+    def init_config(self, video_source='vid_samples/vid.2.mp4', model='saved_model/model-2.pckl', roi_x1 = 60, roi_x2 = 800, roi_y1 = 230, roi_y2 = 400, l1=85, l2=130):
+        
+        self.video_source = video_source
+        self.cap=cv2.VideoCapture(video_source)
+
+        f = open(model, 'rb')
+        self.model = pickle.load(f)
+        f.close()
+
+        self.roi_x1 = roi_x1        
+        self.roi_x2 = roi_x2        
+        self.roi_y1 = roi_y1 
+        self.roi_y2 = roi_y2 
+        self.l1 = l1
+        self.l2 = l2
+
+    def set_config(self, video_source, model, roi_x1, roi_x2, roi_y1, roi_y2, l1, l2):
+        
+        if self.video_source != video_source:
+            self.video_source = video_source
+            self.cap=cv2.VideoCapture(video_source)
+
+        if self.model != model:
+            f = open(model, 'rb')
+            self.model = pickle.load(f)
+            f.close()
+
+        if self.roi_x1 != roi_x1:
+            self.roi_x1 = roi_x1
+        
+        if self.roi_x2 != roi_x2:
+            self.roi_x2 = roi_x2
+        
+        if self.roi_y1 != roi_y1:
+            self.roi_y2 = roi_y2
+        
+        if self.l1 != l1:
+            self.l1 = l1
+                
+        if self.l2 != l2:
+            self.l2 = l2
 
     def main(self):        
-        l1 = 85
-        l2 = 130
+        l1 = self.l1
+        l2 = self.l2
         _ret, frame = self.cap.read()
 
         # if ret in GUI:
@@ -34,10 +74,10 @@ class Core:
 
             # frame to roi
 
-            roi_x1 = 60
-            roi_x2 = 800
-            roi_y1 = 230
-            roi_y2 = 400
+            roi_x1 = self.roi_x1
+            roi_x2 = self.roi_x2
+            roi_y1 = self.roi_y1
+            roi_y2 = self.roi_y2
 
             # roi = frame[230:400, 60:800]
             roi = frame[roi_y1: roi_y2, roi_x1: roi_x2]
