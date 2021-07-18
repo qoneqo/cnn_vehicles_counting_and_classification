@@ -27,9 +27,17 @@ class GUICounting:
         self.gui_frame_inp_22()
         self.gui_area_classification()
 
+        video_source = "vid_samples/vid.2.mp4"
+        self.core = Core(video_source)
+        # open video source 
+        self.vid = self.core.main()
+        
+        # After it is called once, the update method will be automatically called every delay milliseconds
+        self.delay = 30
+
+        self.gui_frame_3()
         self.gui_counting()
         self.gui_button_1()
-        # After it is called once, the update method will be automatically called every delay milliseconds
     
     ### FRAME 1.1 - INPUT SOURCE VIDEO
     def gui_frame_inp_11(self):
@@ -105,8 +113,8 @@ class GUICounting:
 
     def ev_entry_roi_x1(self, event):
         self.roi_x1 = self.entry_roi_x1.get()
-        self.gui_counting()
-
+        self.reload_gui_counting()
+        
     def gui_label_roi_y1(self):
         label = tk.Label(self.frame_inp_21_1, text="Y1: ")
         label.pack(side=tk.LEFT, padx=10)
@@ -164,26 +172,18 @@ class GUICounting:
         entry_l2 = tk.Entry(self.frame_inp_22_2, width=20)
         entry_l2.pack(side=tk.LEFT, padx=10)
 
-    ### BUTTON PLAY
-
-    def gui_button_1(self):
-        button_1 = tk.Button(self.main_frame, text='Play Video', width=25, command=self.run_gui_counting)
-        button_1.pack()
+    ### FRAME 2.1 - INPUT ROI
+    def gui_frame_3(self):
+        self.frame_3 = tk.Frame(self.main_frame)
+        self.frame_3.pack(fill=tk.X, pady=(10, 15))
 
     def gui_counting(self):
-        video_source = "vid_samples/vid.2.mp4"
-        self.core = Core(video_source)
-
-        # open video source 
-        self.vid = self.core.main()
-
         # Create a canvas that can fit the above video source size        
-        self.canvas = canvas = tk.Canvas(self.main_frame, width = 800, height = 400)
+        self.canvas = canvas = tk.Canvas(self.frame_3, width = 800, height = 400)
         canvas.config(highlightbackground="black")
         canvas.pack()
-        self.delay = 30
 
-        ret, frame = self.core.main()        
+        ret, frame = self.core.main()
 
         if ret:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
@@ -208,7 +208,21 @@ class GUICounting:
         if ret:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
             self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)
-            self.main_frame.after(self.delay, self.run_gui_counting)
+            self.frame_3.after(self.delay, self.run_gui_counting)
         else:
             del self.core
             self.canvas.destroy()
+    
+    ### BUTTON PLAY
+    def gui_button_1(self):
+        self.button_1 = button_1 = tk.Button(self.frame_3, text='Play Video', width=25, command=self.run_gui_counting)
+        button_1.pack()
+
+    def reload_gui_counting(self):
+        self.canvas.delete('all')
+        self.canvas.destroy()
+        self.button_1.destroy()
+        self.frame_3.destroy()        
+        self.gui_frame_3()
+        self.gui_counting()
+        self.gui_button_1()
