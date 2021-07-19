@@ -10,6 +10,7 @@ class GUIWindow:
         self.main_frame = main_frame = tk.Frame(window)
         main_frame.pack()
         self.menu(window)
+        self.reload_main_frame(GUICounting, 'Sistem Klasifikasi dan Perhitungan Kendaraan')
         window.mainloop()
 
     def reload_main_frame(self, class_gui, window_title):

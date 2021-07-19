@@ -1,0 +1,8 @@
+Core
+*Menu Buat model
+*Output File
+
+Additional
+*Tampilkan Preprocessing Citra
+*Hide Text Counting kendaraan pojok kanan atas
+*Tampilkan output video pada form
