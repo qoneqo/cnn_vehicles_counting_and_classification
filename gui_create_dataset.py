@@ -1,4 +1,7 @@
 import tkinter as tk
+import PIL.Image, PIL.ImageTk
+from create_dataset import CreateDataset 
+
 
 class GUICreateDataset:
     def __init__(self, main_frame):
@@ -15,7 +18,7 @@ class GUICreateDataset:
         self.gui_source_vid()
 
         self.gui_frame_inp_12()
-        self.gui_pilih_model()
+        self.gui_pilih_folder_output()
 
         self.gui_frame_inp_21()
         self.gui_set_roi()
@@ -23,10 +26,10 @@ class GUICreateDataset:
         self.gui_frame_inp_22()
         self.gui_area_classification()
 
-        self.core = Core()
+        self.create_dataset = CreateDataset()
         
         # open video source
-        self.vid = self.core.main()
+        self.vid = self.create_dataset.main()
         
         # After it is called once, the update method will be automatically called every delay milliseconds
         self.delay = 30
@@ -69,7 +72,7 @@ class GUICreateDataset:
         btn_source_vid.pack(side=tk.BOTTOM, padx=(0, 10))
 
     def ev_btn_source_vid(self):
-        file_name = tk.filedialog.askopenfilename(parent=self.frame_inp_11, filetypes=[('Video File','*')], title='Plih model')
+        file_name = tk.filedialog.askopenfilename(parent=self.frame_inp_11, filetypes=[('Video File','*')], title='Plih Folder Output')
         self.entry_source_vid.delete(0, tk.END)
         self.entry_source_vid.insert(0, file_name)
         self.entry_source_vid.xview(len(file_name))
@@ -77,43 +80,43 @@ class GUICreateDataset:
         self.refresh_gui_counting(reload=True)
 
 
-    ### FRAME 1.2 - PILIH MODEL
+    ### FRAME 1.2 - PILIH FOLDER OUTPUT
     def gui_frame_inp_12(self):
-        self.frame_inp_12 = tk.LabelFrame(self.frame_inp_1, text='Model')
+        self.frame_inp_12 = tk.LabelFrame(self.frame_inp_1, text='Folder Output')
         self.frame_inp_12.pack(fill=tk.X, side=tk.LEFT)
 
-    def gui_pilih_model(self):
-        self.gui_label_pilih_model()
-        self.gui_entry_pilih_model()
-        self.gui_btn_pilih_model()
+    def gui_pilih_folder_output(self):
+        self.gui_label_pilih_folder_output()
+        self.gui_entry_pilih_folder_output()
+        self.gui_btn_pilih_folder_output()
 
-    def gui_label_pilih_model(self):
-        label = tk.Label(self.frame_inp_12, text="Pilih Model: ")
+    def gui_label_pilih_folder_output(self):
+        label = tk.Label(self.frame_inp_12, text="Pilih Folder Output: ")
         label.pack(side=tk.LEFT, padx=10)
 
-    def gui_entry_pilih_model(self):
-        self.entry_pilih_model = entry_pilih_model = tk.Entry(self.frame_inp_12)
-        entry_pilih_model.pack(side=tk.LEFT, padx=10)
+    def gui_entry_pilih_folder_output(self):
+        self.entry_pilih_folder_output = entry_pilih_folder_output = tk.Entry(self.frame_inp_12)
+        entry_pilih_folder_output.pack(side=tk.LEFT, padx=10)
 
-        self.pilih_model = default_model = 'saved_model/model-2.pckl'
-        entry_pilih_model.insert(0, default_model)
+        self.pilih_folder_output = default_folder_output = 'generate_dataset/'
+        entry_pilih_folder_output.insert(0, default_folder_output)
 
-        entry_pilih_model.bind('<KeyRelease>', self.ev_entry_pilih_model)
+        entry_pilih_folder_output.bind('<KeyRelease>', self.ev_entry_pilih_folder_output)
 
-    def ev_entry_pilih_model(self, event):
-        self.pilih_model = self.entry_pilih_model.get()
+    def ev_entry_pilih_folder_output(self, event):
+        self.pilih_folder_output = self.entry_pilih_folder_output.get()
         self.refresh_gui_counting(reload=True)
 
-    def gui_btn_pilih_model(self):        
-        self.btn_pilih_model = btn_pilih_model = tk.Button(self.frame_inp_12, text='Browse', command=self.ev_btn_pilih_model)
-        btn_pilih_model.pack(side=tk.LEFT, padx=(0, 10))
+    def gui_btn_pilih_folder_output(self):        
+        self.btn_pilih_folder_output = btn_pilih_folder_output = tk.Button(self.frame_inp_12, text='Browse', command=self.ev_btn_pilih_folder_output)
+        btn_pilih_folder_output.pack(side=tk.LEFT, padx=(0, 10))
 
-    def ev_btn_pilih_model(self):
-        file_name = tk.filedialog.askopenfilename(parent=self.frame_inp_12, filetypes=[('Pickle File','*.pckl')], title='Plih model')
-        self.entry_pilih_model.delete(0, tk.END)
-        self.entry_pilih_model.insert(0, file_name)
-        self.entry_pilih_model.xview(len(file_name))
-        self.pilih_model = file_name
+    def ev_btn_pilih_folder_output(self):
+        file_name = tk.filedialog.askdirectory(parent=self.frame_inp_12, title='Plih folder output', initialdir='generate_dataset')
+        self.entry_pilih_folder_output.delete(0, tk.END)
+        self.entry_pilih_folder_output.insert(0, file_name)
+        self.entry_pilih_folder_output.xview(len(file_name))
+        self.pilih_folder_output = file_name
         self.refresh_gui_counting(reload=True)
 
     ### FRAME 2.1 - INPUT ROI
@@ -252,9 +255,8 @@ class GUICreateDataset:
         canvas.config(highlightbackground="black")
         canvas.pack()
 
-        # Jika reload True maka fungsi core main tidak dijalankan
         if reload == True:
-            self.ret_counting, self.frame_counting = self.core.main()
+            self.ret_counting, self.frame_counting = self.create_dataset.main()
 
         if self.ret_counting:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(self.frame_counting))
@@ -274,14 +276,14 @@ class GUICreateDataset:
         self.canvas.create_line(self.roi_x1, self.roi_y1 + (self.l1+((self.l2-self.l1)//2)), self.roi_x2, self.roi_y1 + (self.l1+((self.l2-self.l1)//2)), fill="black", width=2)
 
     def run_gui_counting(self):
-        ret, frame = self.core.main()
+        ret, frame = self.create_dataset.main()
         if ret and not self.pause:
             self.photo = PIL.ImageTk.PhotoImage(image = PIL.Image.fromarray(frame))
             self.canvas.create_image(0, 0, image = self.photo, anchor = tk.NW)
             self.frame_3.after(self.delay, self.run_gui_counting)
         else:
             self.pause = False
-        #     del self.core
+        #     del self.create_dataset
         #     self.canvas.destroy()
     
     ### BUTTON PLAY
@@ -307,7 +309,7 @@ class GUICreateDataset:
         self.canvas.destroy()
         self.button_1.destroy()
         self.frame_3.destroy()
-        self.set_core_config()
+        self.set_create_dataset_config()
         self.gui_frame_3()
         self.gui_counting(reload=reload)
         self.gui_button()
@@ -325,8 +327,8 @@ class GUICreateDataset:
 
     def stop_gui_counting(self):
         self.pause_gui_counting()
-        self.core = Core()
+        self.create_dataset = CreateDataset()
         self.refresh_gui_counting(reload=True)
 
-    def set_core_config(self):
-        self.core.set_config(video_source=self.source_vid, model=self.pilih_model, roi_x1=self.roi_x1, roi_x2=self.roi_x2, roi_y1=self.roi_y1, roi_y2=self.roi_y2, l1=self.l1, l2=self.l2)
+    def set_create_dataset_config(self):
+        self.create_dataset.set_config(video_source=self.source_vid, roi_x1=self.roi_x1, roi_x2=self.roi_x2, roi_y1=self.roi_y1, roi_y2=self.roi_y2, l1=self.l1, l2=self.l2)

@@ -1,6 +1,5 @@
 import tkinter as tk
 import PIL.Image, PIL.ImageTk
-import time
 from core import Core 
 
 class GUICounting:
