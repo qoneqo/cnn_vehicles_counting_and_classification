@@ -8,14 +8,12 @@ from tracker import EuclideanDistTracker
 class Core:
     def __init__(self):
         self.count = [0, 0, 0]
-        self.prediction = ''
         self.classified = 0
+        self.prediction = ''
         self.tracker = EuclideanDistTracker()
 
         ### init config
         self.init_config()
-
-        self.cnn = CNN(model=self.model)
         self.object_detector = cv2.createBackgroundSubtractorMOG2(history=200)
     
     def init_config(self, video_source='vid_samples/vid.2.mp4', model='saved_model/model-2.pckl', roi_x1 = 60, roi_x2 = 800, roi_y1 = 230, roi_y2 = 400, l1=85, l2=130):
@@ -26,6 +24,7 @@ class Core:
         f = open(model, 'rb')
         self.model = pickle.load(f)
         f.close()
+        self.cnn = CNN(model=self.model)
 
         self.roi_x1 = roi_x1        
         self.roi_x2 = roi_x2        
@@ -44,6 +43,7 @@ class Core:
             f = open(model, 'rb')
             self.model = pickle.load(f)
             f.close()
+            self.cnn = CNN(model=self.model)
 
         if self.roi_x1 != roi_x1:
             self.roi_x1 = roi_x1
@@ -52,6 +52,9 @@ class Core:
             self.roi_x2 = roi_x2
         
         if self.roi_y1 != roi_y1:
+            self.roi_y1 = roi_y1
+        
+        if self.roi_y2 != roi_y2:
             self.roi_y2 = roi_y2
         
         if self.l1 != l1:

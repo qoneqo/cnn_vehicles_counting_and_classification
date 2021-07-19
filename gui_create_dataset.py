@@ -1,9 +1,6 @@
 import tkinter as tk
-import PIL.Image, PIL.ImageTk
-import time
-from core import Core 
 
-class GUICounting:
+class GUICreateDataset:
     def __init__(self, main_frame):
         self.main_frame = main_frame
         self.roi_x1 = 60
