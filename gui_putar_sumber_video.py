@@ -2,7 +2,6 @@ import tkinter as tk
 import PIL.Image, PIL.ImageTk
 from putar_sumber_video import PutarSumberVideo 
 
-
 class GUIPutarSumberVideo:
     def __init__(self, main_frame):
         self.main_frame = main_frame

@@ -1,6 +1,7 @@
 import tkinter as tk
 from gui_counting import *
 from gui_create_dataset import *
+from gui_create_model import *
 from gui_putar_sumber_video import *
 
 class GUIWindow:
@@ -10,7 +11,7 @@ class GUIWindow:
         self.main_frame = main_frame = tk.Frame(window)
         main_frame.pack()
         self.menu(window)
-        self.reload_main_frame(GUICounting, 'Sistem Klasifikasi dan Perhitungan Kendaraan')
+        self.reload_main_frame(GUICreateModel, 'Sistem Klasifikasi dan Perhitungan Kendaraan')
         window.mainloop()
 
     def reload_main_frame(self, class_gui, window_title):
@@ -43,7 +44,7 @@ class GUIWindow:
 
         modelmenu = tk.Menu(menu)
         menu.add_cascade(label='Model', menu=modelmenu)
-        modelmenu.add_command(label='Buat Model')
+        modelmenu.add_command(label='Buat Model', command=lambda: self.reload_main_frame(GUICreateModel, 'Buat Model'))
 
         helpmenu = tk.Menu(menu)
         menu.add_cascade(label='Help', menu=helpmenu)

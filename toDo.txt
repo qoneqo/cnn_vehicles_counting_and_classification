@@ -6,3 +6,4 @@ Additional
 *Tampilkan Preprocessing Citra
 *Hide Text Counting kendaraan pojok kanan atas
 *Tampilkan output video pada form
+*Tampilkan isi model
