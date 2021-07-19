@@ -7,15 +7,17 @@ class CreateDataset:
         self.count = 0
         self.classified = 0
         self.tracker = EuclideanDistTracker()
-
+        self.output_folder = 'generate_dataset'
         ### init config
         self.init_config()
         self.object_detector = cv2.createBackgroundSubtractorMOG2(history=200)
     
-    def init_config(self, video_source='vid_samples/vid.2.mp4', roi_x1 = 60, roi_x2 = 800, roi_y1 = 230, roi_y2 = 400, l1=85, l2=130):
+    def init_config(self, video_source='vid_samples/vid.2.mp4', output_folder = 'generate_dataset', roi_x1 = 60, roi_x2 = 800, roi_y1 = 230, roi_y2 = 400, l1=85, l2=130):
         
         self.video_source = video_source
         self.cap=cv2.VideoCapture(video_source)
+
+        self.output_folder = output_folder
 
         self.roi_x1 = roi_x1        
         self.roi_x2 = roi_x2        
@@ -24,11 +26,14 @@ class CreateDataset:
         self.l1 = l1
         self.l2 = l2
 
-    def set_config(self, video_source, roi_x1, roi_x2, roi_y1, roi_y2, l1, l2):
+    def set_config(self, video_source, output_folder, roi_x1, roi_x2, roi_y1, roi_y2, l1, l2):
         
         if self.video_source != video_source:
             self.video_source = video_source
             self.cap=cv2.VideoCapture(video_source)
+
+        if self.output_folder != output_folder:
+            self.output_folder = output_folder
 
         if self.roi_x1 != roi_x1:
             self.roi_x1 = roi_x1
@@ -98,8 +103,8 @@ class CreateDataset:
                     
                     self.count += 1
                     # cv2.imshow('Cropped Bounding Rect', roi[y:y+h, x:x+w])
-                    cv2.imwrite('cropped/im'+'-'+str(ids)+'.png', roi[y:y+h, x:x+w])
-                    cv2.line(roi, (0, (l1+((l2-l1)//2))), (roi_x2, (l1+((l2-l1)//2))), (0, 0, 0), 2)
+                    cv2.imwrite(self.output_folder+'/img'+'-'+str(ids)+'.png', roi[y:y+h, x:x+w])
+                    # cv2.line(roi, (0, (l1+((l2-l1)//2))), (roi_x2, (l1+((l2-l1)//2))), (0, 0, 0), 2)
                     self.classified += 1
         
         return (_ret, frame)

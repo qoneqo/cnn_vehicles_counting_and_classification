@@ -331,4 +331,4 @@ class GUICreateDataset:
         self.refresh_gui_counting(reload=True)
 
     def set_create_dataset_config(self):
-        self.create_dataset.set_config(video_source=self.source_vid, roi_x1=self.roi_x1, roi_x2=self.roi_x2, roi_y1=self.roi_y1, roi_y2=self.roi_y2, l1=self.l1, l2=self.l2)
+        self.create_dataset.set_config(video_source=self.source_vid, output_folder=self.pilih_folder_output, roi_x1=self.roi_x1, roi_x2=self.roi_x2, roi_y1=self.roi_y1, roi_y2=self.roi_y2, l1=self.l1, l2=self.l2)
