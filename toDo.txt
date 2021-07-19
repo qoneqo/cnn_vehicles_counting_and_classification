@@ -1,6 +1,8 @@
 Core
-*Menu Buat model
+*Menu Buat model V
+*Update CNN with parameter, add nama_kendaraan_model.pckl
 *Output File
+*Replace Model
 
 Additional
 *Tampilkan Preprocessing Citra

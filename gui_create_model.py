@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import math
 from train_n_test_cnn import TrainNTestCNN
+import time
 
 """
 Nama Model
@@ -39,6 +40,7 @@ class GUICreateModel:
         self.gui_epochs()
         
         self.gui_button()
+        self.gui_label_finish()
 
     ### FRAME 1.1 - INPUT NAMA MODEL
     def gui_frame_inp_11(self):
@@ -249,16 +251,15 @@ class GUICreateModel:
         len_frame = math.floor(len / 2)
         self.jenis_kendaraan[len] = 'Kendaraan '+str(len+1)
         
-        kid_var = tk.IntVar(self.frame_inp_4x[len_frame], value=len)
-        self.entry_jenis_kendaraan[len] = tk.Entry(self.frame_inp_4x[len_frame], textvariable=kid_var)
+        self.entry_jenis_kendaraan[len] = tk.Entry(self.frame_inp_4x[len_frame])
         self.entry_jenis_kendaraan[len].pack(side=tk.LEFT, padx=10)
 
         self.entry_jenis_kendaraan[len].insert(0, str(self.jenis_kendaraan[len]))
         self.entry_jenis_kendaraan[len].bind('<KeyRelease>', self.ev_entry_jenis_kendaraan)
 
     def ev_entry_jenis_kendaraan(self, event):
-        print(event.widget.textvariable)
-        # self.jenis_kendaraan[len] = self.entry_jenis_kendaraan[len].get()
+        for i in range(len(self.entry_jenis_kendaraan)):
+            self.jenis_kendaraan[i] = self.entry_jenis_kendaraan[i].get()
 
 ### FRAME EPOCHS
     def gui_frame_inp_61(self):
@@ -295,15 +296,22 @@ class GUICreateModel:
         self.button_1 = button_1 = tk.Button(self.frame_5, text='Latih Model', width=25, command=self.train)
         button_1.pack(side=tk.LEFT, padx=(0, 10))
         
-        self.button_2 = button_2 = tk.Button(self.frame_5, text='Uji Model', width=25)
+        self.button_2 = button_2 = tk.Button(self.frame_5, text='Uji Model', width=25, command=self.test)
         button_2.pack(side=tk.LEFT, padx=(0, 10))
     
+    def gui_label_finish(self):
+        self.frame_6 = tk.Frame(self.main_frame)
+        self.frame_6.pack(fill=tk.X, pady=(10, 15))
+        self.label_finish = label_finish = tk.Label(self.frame_6, text='', font=("Arial", 12))
+        label_finish.pack(side=tk.LEFT, padx=10)
+
     def train(self):
-        nama_kendaraan = [None] * len(self.jumlah_kendaraan) 
-        for i in range(len(self.jumlah_kendaraan)):
-            nama_kendaraan[i] = self.jenis_kendaraan[i]
-        print(nama_kendaraan)
-        cnn = TrainNTestCNN(model_name=self.nama_model, model_folder=self.pilih_folder_output, train_folder=self.pilih_folder_latih, test_folder=self.pilih_folder_uji, jumlah_kendaraan=int(self.jumlah_kendaraan), nama_kendaraan=nama_kendaraan)
-        cnn.train(epochs=int(self.epochs))
-    
-    # def test(self):
+        cnn = TrainNTestCNN(model_name=self.nama_model, model_folder=self.pilih_folder_output, train_folder=self.pilih_folder_latih, test_folder=self.pilih_folder_uji, jumlah_kendaraan=int(self.jumlah_kendaraan), nama_kendaraan=self.jenis_kendaraan)
+        ret = cnn.train(epochs=int(self.epochs))
+        self.label_finish.config(text=ret, fg='green2')
+
+    def test(self):
+        cnn = TrainNTestCNN(model_name=self.nama_model, model_folder=self.pilih_folder_output, train_folder=self.pilih_folder_latih, test_folder=self.pilih_folder_uji, jumlah_kendaraan=int(self.jumlah_kendaraan), nama_kendaraan=self.jenis_kendaraan)
+        model_src = self.pilih_folder_output+'/'+self.nama_model+'.pckl'
+        ret = cnn.test(model_src=model_src)
+        self.label_finish.config(text=ret, fg='green2')

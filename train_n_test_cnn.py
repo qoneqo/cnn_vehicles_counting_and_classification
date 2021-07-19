@@ -1,4 +1,4 @@
-from create_model_cnn import CNN
+from cnn import CNN
 import pickle
 import os
 
@@ -32,11 +32,13 @@ class TrainNTestCNN:
     def train(self, epochs=20):
         self.set_architecture()
         cnn = CNN(architecture=self.architecture, train_data=self.train_folder, saved_model=self.model_folder, model_name=self.model_name, nama_kendaraan=self.nama_kendaraan)
-        cnn.train(epochs=epochs)
+        ret = cnn.train(epochs=epochs)
+        return ret
 
     def test(self, model_src):
         f = open(model_src, 'rb')
         model = pickle.load(f)
         f.close()
         cnn = CNN(model=model, test_data=self.test_folder, nama_kendaraan=self.nama_kendaraan)
-        cnn.test()
+        ret = cnn.test()
+        return ret
