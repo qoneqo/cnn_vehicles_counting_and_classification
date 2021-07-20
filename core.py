@@ -150,14 +150,16 @@ class Core:
             named_tuple = time.localtime()
             # time_string = time.strftime("%m/%d/%Y, %H:%M:%S", named_tuple)
             filename = self.model_name + '-' + time.strftime("%d-%m-%Y", named_tuple)
-            timeq = time.strftime("%H:00:00", named_tuple)
+            timeq = time.strftime("%H:%M:00", named_tuple)
+            dateq = time.strftime("%Y-%m-%d", named_tuple)
             if self.mytime != timeq:
                 self.mytime = timeq
                 self.count = [0] * len(self.nama_kendaraan)
                 self.vindex += 1
+                self.count.append(dateq)
                 self.count.append(self.mytime)
-                self.vehicles.append(self.count)
-
+                self.vehicles.append([])
+                self.vehicles[self.vindex] = self.count
 
             for bid in tracker_obj:
                 x,y,w,h,ids = bid
@@ -172,11 +174,10 @@ class Core:
                     cv2.putText(roi, self.prediction, (x, y+h-10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.75, (244,0,0))
 
                     self.count[self.nama_kendaraan.index(self.prediction)] += 1
-
                     cv2.circle(roi, (cx, cy), 4, (0, 0, 255), 2)
                     cv2.rectangle(roi, (x, y), (x+w, y+h), (0, 0, 255), 2)
 
-                    self.vehicles[self.vindex] = self.count
+                    self.vehicles[self.vindex] = self.count + [self.vehicles[self.vindex][-2]] + [self.vehicles[self.vindex][-1]]
       
                     self.classified += 1
             
@@ -187,7 +188,7 @@ class Core:
             # cv2.imshow('frame', frame)
             # cv2.imshow('roi', roi)
             # cv2.imshow('mask', mask)
-            to_xlsx.save_to_xlsx(self.count, self.nama_kendaraan, filename)
+            to_xlsx.save_to_xlsx(self.vehicles, self.nama_kendaraan, filename)
 
             # key = cv2.waitKey(60)
             # if key == ord('p'):

@@ -24,7 +24,10 @@ class GUICounting:
 
         self.gui_frame_inp_22()
         self.gui_area_classification()
-
+        
+        self.gui_frame_inp_23()
+        self.gui_output_xlsx()
+        
         self.core = Core()
         
         # open video source
@@ -146,7 +149,7 @@ class GUICounting:
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_roi_x1(self):
-        self.entry_roi_x1 = entry_roi_x1 = tk.Entry(self.frame_inp_21_1, width=20)
+        self.entry_roi_x1 = entry_roi_x1 = tk.Entry(self.frame_inp_21_1, width=7)
         entry_roi_x1.pack(side=tk.LEFT, padx=10)
         entry_roi_x1.insert(0, str(self.roi_x1))
         entry_roi_x1.bind('<KeyRelease>', self.ev_entry_roi_x1)
@@ -160,7 +163,7 @@ class GUICounting:
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_roi_y1(self):
-        self.entry_roi_y1 = entry_roi_y1 = tk.Entry(self.frame_inp_21_1, width=20)
+        self.entry_roi_y1 = entry_roi_y1 = tk.Entry(self.frame_inp_21_1, width=7)
         entry_roi_y1.pack(side=tk.LEFT, padx=10)
         entry_roi_y1.insert(0, str(self.roi_y1))
         entry_roi_y1.bind('<KeyRelease>', self.ev_entry_roi_y1)
@@ -174,7 +177,7 @@ class GUICounting:
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_roi_x2(self):
-        self.entry_roi_x2 = entry_roi_x2 = tk.Entry(self.frame_inp_21_2, width=20)
+        self.entry_roi_x2 = entry_roi_x2 = tk.Entry(self.frame_inp_21_2, width=7)
         entry_roi_x2.pack(side=tk.LEFT, padx=10)
         entry_roi_x2.insert(0, str(self.roi_x2))
         entry_roi_x2.bind('<KeyRelease>', self.ev_entry_roi_x2)
@@ -188,7 +191,7 @@ class GUICounting:
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_roi_y2(self):
-        self.entry_roi_y2 = entry_roi_y2 = tk.Entry(self.frame_inp_21_2, width=20)
+        self.entry_roi_y2 = entry_roi_y2 = tk.Entry(self.frame_inp_21_2, width=7)
         entry_roi_y2.pack(side=tk.LEFT, padx=10)
         entry_roi_y2.insert(0, str(self.roi_y2))
         entry_roi_y2.bind('<KeyRelease>', self.ev_entry_roi_y2)
@@ -219,7 +222,7 @@ class GUICounting:
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_l1(self):
-        self.entry_l1 = entry_l1 = tk.Entry(self.frame_inp_22_1, width=20)
+        self.entry_l1 = entry_l1 = tk.Entry(self.frame_inp_22_1, width=7)
         entry_l1.pack(side=tk.LEFT, padx=10)
         entry_l1.insert(0, str(self.l1))
         entry_l1.bind('<KeyRelease>', self.ev_entry_l1)
@@ -233,7 +236,7 @@ class GUICounting:
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_l2(self):
-        self.entry_l2 = entry_l2 = tk.Entry(self.frame_inp_22_2, width=20)
+        self.entry_l2 = entry_l2 = tk.Entry(self.frame_inp_22_2, width=7)
         entry_l2.pack(side=tk.LEFT, padx=10)
         entry_l2.insert(0, str(self.l2))
         entry_l2.bind('<KeyRelease>', self.ev_entry_l2)
@@ -242,6 +245,48 @@ class GUICounting:
         self.l2 = int(self.entry_l2.get())
         self.refresh_gui_counting()
 
+    ### FRAME 2.3 - OUTPUT XLSX
+    def gui_frame_inp_23(self):        
+        self.frame_inp_23 = tk.LabelFrame(self.frame_inp_2, text='Output')
+        self.frame_inp_23.pack(fill=tk.X, side=tk.LEFT, padx=(20, 0))
+        
+        self.frame_inp_23_1 = tk.Frame(self.frame_inp_23)
+        self.frame_inp_23_1.pack(fill=tk.X)
+
+    def gui_output_xlsx(self):
+        self.gui_label_output_xlsx()
+        self.gui_entry_output_xlsx()
+        self.gui_btn_output_xlsx()
+
+    def gui_label_output_xlsx(self):
+        label = tk.Label(self.frame_inp_23_1, text="Pilih Folder Output .xlsx: ")
+        label.pack(side=tk.LEFT, padx=10)
+
+    def gui_entry_output_xlsx(self):
+        self.entry_output_xlsx = entry_output_xlsx = tk.Entry(self.frame_inp_23_1)
+        entry_output_xlsx.pack(side=tk.LEFT, padx=10)
+        self.output_xlsx = 'output_xlsx/'
+
+        entry_output_xlsx.insert(0, str(self.output_xlsx))
+        entry_output_xlsx.bind('<KeyRelease>', self.ev_entry_output_xlsx)
+
+    def ev_entry_output_xlsx(self, event):
+        self.output_xlsx = self.entry_output_xlsx.get()
+        self.refresh_gui_counting(reload=True)
+
+    def gui_btn_output_xlsx(self):        
+        self.btn_output_xlsx = btn_output_xlsx = tk.Button(self.frame_inp_23_1, text='Browse', command=self.ev_btn_output_xlsx)
+        btn_output_xlsx.pack(side=tk.BOTTOM, padx=(0, 10))
+
+    def ev_btn_output_xlsx(self):
+        file_name = tk.filedialog.askdirectory(parent=self.frame_inp_23_1, title='Plih folder output xlsx', initialdir='output_xlsx/')
+        self.entry_output_xlsx.delete(0, tk.END)
+        self.entry_output_xlsx.insert(0, file_name)
+        self.entry_output_xlsx.xview(len(file_name))
+        self.output_xlsx = file_name
+        self.refresh_gui_counting(reload=True)
+
+        
     ### FRAME 3
     def gui_frame_3(self):
         self.frame_3 = tk.Frame(self.main_frame)
@@ -331,5 +376,4 @@ class GUICounting:
         self.refresh_gui_counting(reload=True)
 
     def set_core_config(self):
-        print(self.pilih_model)
         self.core.set_config(video_source=self.source_vid, model=self.pilih_model, roi_x1=self.roi_x1, roi_x2=self.roi_x2, roi_y1=self.roi_y1, roi_y2=self.roi_y2, l1=self.l1, l2=self.l2)
