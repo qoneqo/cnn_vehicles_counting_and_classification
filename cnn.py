@@ -198,11 +198,11 @@ class CNN:
                 self.update()
 
             # Saving the objects:
-            f = open(self.saved_model+self.model_name, 'wb')
+            f = open(self.saved_model+'/'+self.model_name, 'wb')
             pickle.dump(self.obj, f)
             f.close()
 
-            f = open(self.saved_model+'nk-'+self.model_name, 'wb')
+            f = open(self.saved_model+'/'+'nk-'+self.model_name, 'wb')
             pickle.dump(self.nama_kendaraan, f)
             f.close()
 
