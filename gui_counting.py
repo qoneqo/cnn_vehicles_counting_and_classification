@@ -331,4 +331,5 @@ class GUICounting:
         self.refresh_gui_counting(reload=True)
 
     def set_core_config(self):
+        print(self.pilih_model)
         self.core.set_config(video_source=self.source_vid, model=self.pilih_model, roi_x1=self.roi_x1, roi_x2=self.roi_x2, roi_y1=self.roi_y1, roi_y2=self.roi_y2, l1=self.l1, l2=self.l2)

@@ -2,6 +2,12 @@ from cnn import CNN
 import pickle
 import os
 
+
+# nk = ['sepeda motor', 'sepeda', 'mobil penumpang']
+# f = open('saved_model/nk-model-2.pckl', 'wb')
+# pickle.dump(nk, f)
+# f.close()
+
 class TrainNTestCNN:
     def __init__(self, model_name, model_folder, train_folder, test_folder, jumlah_kendaraan, nama_kendaraan):
         self.model_name = model_name

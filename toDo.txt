@@ -1,6 +1,6 @@
 Core
 *Menu Buat model V
-*Update CNN with parameter, add nama_kendaraan_model.pckl
+*Update CNN with parameter, add nama_kendaraan_model.pckl V
 *Output File
 *Replace Model
 

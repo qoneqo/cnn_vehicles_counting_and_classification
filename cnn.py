@@ -12,15 +12,22 @@ from dense_layer import DenseLayer
 from adam_optim import AdamOptim
 
 class CNN:
-    def __init__(self, architecture = False, model = False, train_data = 'dataset/train/', test_data = 'dataset/test/', saved_model='saved_model/', model_name='model', nama_kendaraan = []):
+    def __init__(self, architecture = False, model = False, train_data = 'dataset/train/', test_data = 'dataset/test/', saved_model='saved_model/', model_name='model', nama_kendaraan = False):
         self.architecture = architecture
         self.i_adam = 0
         self.train_data = train_data
         self.test_data = test_data
         self.saved_model = saved_model
         self.model_name = model_name + '.pckl'
-        # nama_kendaraan  = ['sepeda motor', 'sepeda', 'mobil', 'bus']
+
+        if nama_kendaraan == False:
+            f = open(self.saved_model+'nk-'+self.model_name, 'rb')
+            nama_kendaraan = pickle.load(f)
+            f.close()
+
         self.nama_kendaraan = nama_kendaraan
+
+        # nama_kendaraan  = ['sepeda motor', 'sepeda', 'mobil', 'bus']
 
         if model == False:
             self.obj = self.init_obj_layer()
@@ -193,6 +200,10 @@ class CNN:
             # Saving the objects:
             f = open(self.saved_model+self.model_name, 'wb')
             pickle.dump(self.obj, f)
+            f.close()
+
+            f = open(self.saved_model+'nk-'+self.model_name, 'wb')
+            pickle.dump(self.nama_kendaraan, f)
             f.close()
 
             file_object = open('history.txt', 'a')

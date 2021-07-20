@@ -7,7 +7,6 @@ from tracker import EuclideanDistTracker
 
 class Core:
     def __init__(self):
-        self.count = [0, 0, 0]
         self.classified = 0
         self.prediction = ''
         self.tracker = EuclideanDistTracker()
@@ -24,7 +23,18 @@ class Core:
         f = open(model, 'rb')
         self.model = pickle.load(f)
         f.close()
-        self.cnn = CNN(model=self.model)
+
+        l = model.split('/')
+        model_name = l.pop()
+        model_name = model_name.split('.')[0]
+        folder_model = '/'.join(l) + '/'
+        f = open(folder_model+'nk-'+model_name+'.pckl', 'rb')
+        self.nama_kendaraan = pickle.load(f)
+        f.close()
+        self.count = [0] * len(self.nama_kendaraan)
+
+
+        self.cnn = CNN(model=self.model, saved_model=folder_model, model_name=model_name)
 
         self.roi_x1 = roi_x1        
         self.roi_x2 = roi_x2        
@@ -39,11 +49,23 @@ class Core:
             self.video_source = video_source
             self.cap=cv2.VideoCapture(video_source)
 
+        l = model.split('/')
+        model_name = l.pop()
+        model_name = model_name.split('.')[0]
+        folder_model = '/'.join(l) + '/'
+        f = open(folder_model+'nk-'+model_name+'.pckl', 'rb')
+        self.nama_kendaraan = pickle.load(f)
+        f.close()
+        self.count = [0] * len(self.nama_kendaraan)
+
+
         if self.model != model:
             f = open(model, 'rb')
             self.model = pickle.load(f)
             f.close()
-            self.cnn = CNN(model=self.model)
+            self.cnn = CNN(model=self.model, saved_model=folder_model, model_name=model_name)
+
+        
 
         if self.roi_x1 != roi_x1:
             self.roi_x1 = roi_x1
@@ -132,20 +154,16 @@ class Core:
                     cv2.line(roi, (0, (l1+((l2-l1)//2))), (roi_x2, (l1+((l2-l1)//2))), (0, 0, 0), 2)
                     cv2.putText(roi, self.prediction, (x, y+h-10), cv2.FONT_HERSHEY_COMPLEX_SMALL, 0.75, (244,0,0))
 
-                    if self.prediction == 'sepeda motor':
-                        self.count[0] += 1
-                    elif self.prediction == 'sepeda':
-                        self.count[1] += 1
-                    elif self.prediction == 'mobil penumpang':
-                        self.count[2] += 1
+                    self.count[self.nama_kendaraan.index(self.prediction)] += 1
+
                     cv2.circle(roi, (cx, cy), 4, (0, 0, 255), 2)
                     cv2.rectangle(roi, (x, y), (x+w, y+h), (0, 0, 255), 2)
 
                     self.classified += 1
-                    
-            cv2.putText(frame, 'sepeda motor: '+str(self.count[0]), (500, 20), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
-            cv2.putText(frame, 'sepeda: '+str(self.count[1]), (500, 40), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
-            cv2.putText(frame, 'mobil penumpang: '+str(self.count[2]), (500, 60), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
+            
+            for ind in range(len(self.nama_kendaraan)):
+                posh = 20*(ind+1)
+                cv2.putText(frame, self.nama_kendaraan[ind]+': '+str(self.count[ind]), (500, posh), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0,255,0))
 
             # cv2.imshow('frame', frame)
             # cv2.imshow('roi', roi)
