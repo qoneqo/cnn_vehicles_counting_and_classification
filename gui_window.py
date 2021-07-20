@@ -3,6 +3,7 @@ from gui_counting import *
 from gui_create_dataset import *
 from gui_create_model import *
 from gui_putar_sumber_video import *
+from gui_help import *
 
 class GUIWindow:
     def __init__(self):
@@ -25,6 +26,14 @@ class GUIWindow:
         window.title('Sistem Klasifikasi dan Perhitungan Kendaraan')
         window.geometry("1000x600")
         return window
+    
+    def about(self):
+        root = tk.Tk()
+        root.title('About')
+        root.geometry("200x200")
+        label = tk.Label(root, text="Pengembangan Sistem Klasifikasi dan Perhitungan Kendaraan di Dinas Perhubungan Provinsi DKI Jakarta menggunakan Convolutional Neural Network", wraplength=170)
+        label.pack(side=tk.LEFT, padx=10)
+        root.mainloop()
 
     def menu(self, root_window):
         rootWindow = root_window
@@ -48,4 +57,4 @@ class GUIWindow:
 
         helpmenu = tk.Menu(menu)
         menu.add_cascade(label='Help', menu=helpmenu)
-        helpmenu.add_command(label='About')
+        helpmenu.add_command(label='About', command=self.about)
