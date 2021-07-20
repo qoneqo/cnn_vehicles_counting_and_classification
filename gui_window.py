@@ -32,7 +32,7 @@ class GUIWindow:
         rootWindow.config(menu=menu)
 
         filemenu = tk.Menu(menu)
-        menu.add_cascade(label='Aplikasi Utama', menu=filemenu)
+        menu.add_cascade(label='Main', menu=filemenu)
         filemenu.add_command(label='Klasifikasi dan Hitung Kendaraan', command=lambda: self.reload_main_frame(GUICounting, 'Sistem Klasifikasi dan Perhitungan Kendaraan'))
         filemenu.add_command(label='Putar Sumber Video', command=lambda: self.reload_main_frame(GUIPutarSumberVideo, 'Putar Sumber Video'))
         filemenu.add_separator()
