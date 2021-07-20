@@ -1,7 +1,7 @@
 import xlsxwriter
 
-def save_to_xlsx(vehicles, nama_kendaraan, filename):
-    workbook = xlsxwriter.Workbook('output_xlsx/'+filename+'.xlsx')
+def save_to_xlsx(vehicles, nama_kendaraan, filename, folder_output):
+    workbook = xlsxwriter.Workbook(folder_output+'/'+filename+'.xlsx')
     worksheet = workbook.add_worksheet()
     char_key = ord('A')
     nm_kendaraan = nama_kendaraan.copy()

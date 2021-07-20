@@ -20,7 +20,7 @@ class Core:
         self.init_config()
         self.object_detector = cv2.createBackgroundSubtractorMOG2(history=200)
     
-    def init_config(self, video_source='vid_samples/vid.2.mp4', model='saved_model/model-2.pckl', roi_x1 = 60, roi_x2 = 800, roi_y1 = 230, roi_y2 = 400, l1=85, l2=130):
+    def init_config(self, video_source='vid_samples/vid.2.mp4', model='saved_model/model-2.pckl', roi_x1 = 60, roi_x2 = 800, roi_y1 = 230, roi_y2 = 400, l1=85, l2=130, folder_output='output_xlsx/'):
         
         self.video_source = video_source
         self.cap=cv2.VideoCapture(video_source)
@@ -48,7 +48,9 @@ class Core:
         self.l1 = l1
         self.l2 = l2
 
-    def set_config(self, video_source, model, roi_x1, roi_x2, roi_y1, roi_y2, l1, l2):
+        self.folder_output = folder_output
+
+    def set_config(self, video_source, model, roi_x1, roi_x2, roi_y1, roi_y2, l1, l2, folder_output):
         
         if self.video_source != video_source:
             self.video_source = video_source
@@ -70,8 +72,6 @@ class Core:
             f.close()
             self.cnn = CNN(model=self.model, saved_model=folder_model, model_name=model_name)
 
-        
-
         if self.roi_x1 != roi_x1:
             self.roi_x1 = roi_x1
         
@@ -89,6 +89,10 @@ class Core:
                 
         if self.l2 != l2:
             self.l2 = l2
+
+        if self.folder_output != folder_output:
+            self.folder_output = folder_output
+
 
     def main(self):        
         l1 = self.l1
@@ -188,7 +192,7 @@ class Core:
             # cv2.imshow('frame', frame)
             # cv2.imshow('roi', roi)
             # cv2.imshow('mask', mask)
-            to_xlsx.save_to_xlsx(self.vehicles, self.nama_kendaraan, filename)
+            to_xlsx.save_to_xlsx(self.vehicles, self.nama_kendaraan, filename, self.folder_output)
 
             # key = cv2.waitKey(60)
             # if key == ord('p'):
