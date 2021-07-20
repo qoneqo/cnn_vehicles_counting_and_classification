@@ -30,7 +30,7 @@ class GUIPutarSumberVideo:
         self.gui_btn_source_vid()
 
     def gui_label_source_vid(self):
-        label = tk.Label(self.frame_inp_11, text="Input source video or RSTP Cred link: ")
+        label = tk.Label(self.frame_inp_11, text="Input source video or RTSP Cred link: ")
         label.pack(side=tk.LEFT, padx=10)
 
     def gui_entry_source_vid(self):
