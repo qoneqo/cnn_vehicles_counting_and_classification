@@ -205,3 +205,5 @@ class Core:
     def __del__(self):
         self.cap.release()
         cv2.destroyAllWindows()
+
+# cap=cv2.VideoCapture("rtsp://user:user123!@202.51.112.66:2215/Streaming/Channels/101/")

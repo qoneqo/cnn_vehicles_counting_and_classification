@@ -37,7 +37,18 @@ class TrainNTestCNN:
 
     def train(self, epochs=20):
         self.set_architecture()
-        cnn = CNN(architecture=self.architecture, train_data=self.train_folder, saved_model=self.model_folder, model_name=self.model_name, nama_kendaraan=self.nama_kendaraan)
+
+        model_src = self.model_folder + '/' + self.model_name + '.pckl'
+
+        if os.path.isfile(model_src):            
+            f = open(model_src, 'rb')
+            model = pickle.load(f)
+            f.close()
+            cnn = CNN(architecture=self.architecture, model=model, train_data=self.train_folder, saved_model=self.model_folder, model_name=self.model_name, nama_kendaraan=self.nama_kendaraan)
+        else:
+            cnn = CNN(architecture=self.architecture, train_data=self.train_folder, saved_model=self.model_folder, model_name=self.model_name, nama_kendaraan=self.nama_kendaraan)
+            
+
         ret = cnn.train(epochs=epochs)
         return ret
 
