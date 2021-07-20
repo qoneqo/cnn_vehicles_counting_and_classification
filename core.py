@@ -4,12 +4,17 @@ from cv2 import cv2
 import to_xlsx
 from cnn import CNN
 from tracker import EuclideanDistTracker
+import time
 
 class Core:
     def __init__(self):
         self.classified = 0
         self.prediction = ''
         self.tracker = EuclideanDistTracker()
+
+        self.vehicles = []
+        self.vindex = -1
+        self.mytime = 0
 
         ### init config
         self.init_config()
@@ -26,7 +31,7 @@ class Core:
 
         l = model.split('/')
         model_name = l.pop()
-        model_name = model_name.split('.')[0]
+        self.model_name = model_name = model_name.split('.')[0]
         folder_model = '/'.join(l) + '/'
         f = open(folder_model+'nk-'+model_name+'.pckl', 'rb')
         self.nama_kendaraan = pickle.load(f)
@@ -51,7 +56,7 @@ class Core:
 
         l = model.split('/')
         model_name = l.pop()
-        model_name = model_name.split('.')[0]
+        self.model_name = model_name = model_name.split('.')[0]
         folder_model = '/'.join(l) + '/'
         f = open(folder_model+'nk-'+model_name+'.pckl', 'rb')
         self.nama_kendaraan = pickle.load(f)
@@ -142,6 +147,18 @@ class Core:
                 
             tracker_obj = self.tracker.update(obj_detections)
 
+            named_tuple = time.localtime()
+            # time_string = time.strftime("%m/%d/%Y, %H:%M:%S", named_tuple)
+            filename = self.model_name + '-' + time.strftime("%d-%m-%Y", named_tuple)
+            timeq = time.strftime("%H:00:00", named_tuple)
+            if self.mytime != timeq:
+                self.mytime = timeq
+                self.count = [0] * len(self.nama_kendaraan)
+                self.vindex += 1
+                self.count.append(self.mytime)
+                self.vehicles.append(self.count)
+
+
             for bid in tracker_obj:
                 x,y,w,h,ids = bid
 
@@ -159,6 +176,8 @@ class Core:
                     cv2.circle(roi, (cx, cy), 4, (0, 0, 255), 2)
                     cv2.rectangle(roi, (x, y), (x+w, y+h), (0, 0, 255), 2)
 
+                    self.vehicles[self.vindex] = self.count
+      
                     self.classified += 1
             
             for ind in range(len(self.nama_kendaraan)):
@@ -168,7 +187,7 @@ class Core:
             # cv2.imshow('frame', frame)
             # cv2.imshow('roi', roi)
             # cv2.imshow('mask', mask)
-            # to_xlsx.save_to_xlsx(self.count)
+            to_xlsx.save_to_xlsx(self.count, self.nama_kendaraan, filename)
 
             # key = cv2.waitKey(60)
             # if key == ord('p'):

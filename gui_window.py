@@ -49,5 +49,3 @@ class GUIWindow:
         helpmenu = tk.Menu(menu)
         menu.add_cascade(label='Help', menu=helpmenu)
         helpmenu.add_command(label='About')
-
-GUIWindow()

@@ -1,15 +1,20 @@
 import xlsxwriter
 
-def save_to_xlsx(vehicles):
-    workbook = xlsxwriter.Workbook('output_xlsx/total_vehicles.xlsx')
+def save_to_xlsx(vehicles, nama_kendaraan, filename):
+    workbook = xlsxwriter.Workbook('output_xlsx/'+filename+'.xlsx')
     worksheet = workbook.add_worksheet()
+    
+    char_key = ord('A')
+    nama_kendaraan.append('waktu')
+    for i in range(len(nama_kendaraan)):
+        char = chr(char_key + i)
+        worksheet.write(char+'1', nama_kendaraan[i])
 
-    worksheet.write('A1', 'Sepeda Motor')
-    worksheet.write('B1', 'Sepeda')
-    worksheet.write('C1', 'Mobil Penumpang')
-
-    worksheet.write('A2', str(vehicles[0]))
-    worksheet.write('B2', str(vehicles[1]))
-    worksheet.write('C2', str(vehicles[2]))
+    for i in range(len(vehicles)):
+        num = i+2
+        char_key = ord('A')
+        for j in range(len(nama_kendaraan)):
+            char = chr(char_key + j)
+            worksheet.write(char+str(num), str(vehicles[i][j]))
 
     workbook.close()
