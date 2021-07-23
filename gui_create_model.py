@@ -28,10 +28,11 @@ class GUICreateModel:
         self.gui_pilih_folder_uji()
 
         self.gui_frame_inp_31()
-        self.gui_jumlah_kendaraan()
+        self.jumlah_kendaraan = 3
+        # self.gui_jumlah_kendaraan()
 
-        separator = ttk.Separator(self.frame_inp_3, orient='horizontal')
-        separator.pack(side='top', fill='x')
+        # separator = ttk.Separator(self.frame_inp_3, orient='horizontal')
+        # separator.pack(side='top', fill='x')
         
         self.gui_frame_inp_41()
         self.gui_jenis_kendaraan()
@@ -185,10 +186,12 @@ class GUICreateModel:
 
     ### FRAME 3.1 - INPUT JUMLAH KENDARAAN
     def gui_frame_inp_31(self):
-        self.frame_inp_3 = tk.LabelFrame(self.main_frame, text='Input Jumlah & Jenis Kendaraan')
+        # self.frame_inp_3 = tk.LabelFrame(self.main_frame, text='Input Jumlah & Jenis Kendaraan')
+        self.frame_inp_3 = tk.LabelFrame(self.main_frame, text='Input Jenis Kendaraan')
         self.frame_inp_3.pack(fill=tk.X, pady=(0, 20))
         self.frame_inp_31 = tk.Frame(self.frame_inp_3)
-        self.frame_inp_31.pack(fill=tk.X, padx=(0, 20), pady=10)
+        self.frame_inp_31.pack(fill=tk.X, padx=(0, 20))
+        # self.frame_inp_31.pack(fill=tk.X, padx=(0, 20), pady=10)
 
     def gui_jumlah_kendaraan(self):
         self.gui_label_jumlah_kendaraan()
