@@ -1,3 +1,4 @@
+import tkinter.filedialog
 import tkinter as tk
 import PIL.Image, PIL.ImageTk
 from core import Core 
